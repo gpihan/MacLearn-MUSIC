@@ -1,0 +1,4 @@
+[submodule "submodules/3dMCGlauber"]
+	path = submodules/3dMCGlauber 
+	url = https://github.com/chunshen1987/3dMCGlauber.git
+    branch = electriCharge 
