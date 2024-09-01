@@ -4,4 +4,5 @@ if __name__ == "__main__":
     Param = Parameters()
     Param.read_parameters("parameters.py")
 
-    print(Param.dict["model_name"])
+
+
