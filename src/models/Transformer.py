@@ -9,11 +9,6 @@ from torch.utils.data import DataLoader, TensorDataset
 from sklearn.metrics import mean_squared_error
 from scipy.ndimage import gaussian_filter1d
 
-
-
-
-
-
 class TransformerRegressor(nn.Module):
     def __init__(self, input_dim, output_dim, nhead=73, num_layers=6, dim_feedforward=1024, dropout=0.1):
         super(TransformerRegressor, self).__init__()
@@ -164,25 +159,3 @@ class Transformer(Model):
             torch.save({'model_state_dict': self.model.state_dict(),
                 'input_dim': self.input_dim, 'output_dim': self.output_dim}, self.fname)
 
-
-class RidgeRegressor(Model):
-    def __init__(self, Param):
-        self.pipeline = make_pipeline(
-            PolynomialFeatures(degree=Param["Polydegree"]),
-            Ridge(alpha=Param["RidgeAlpha"])
-        )
-        self.fname = Param["Output_file_name"]
-
-    def train(self,  X_train, Y_train, X_test, Y_test):
-        self.pipeline.fit(X_train, Y_train)
-
-    def predict(self, Y):
-        return self.pipeline.predict(Y)
-
-    def save(self):
-        with open(self.fname, 'wb') as f:
-            pickle.dump(self, f)
-
-
-class LinearRegressor(Model):
-class GaussianProcess(Model):
