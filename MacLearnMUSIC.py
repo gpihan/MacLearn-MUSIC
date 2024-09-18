@@ -1,27 +1,45 @@
 from src.utils import *
 from src.Parameters import Parameters
+from src.MacLearnProcessor import MacLearnProcessor
+from src.Display import Display
 import sys
 
 if __name__ == "__main__":
     
-    # Parse user input
-    try:
-        nev, path_to_parameters_file, path_to_3dMCGlauber_parameters = int(sys.argv[1]), str(sys.argv[2]), str(sys.argv[3])
-    except IndexError:
-        printHelp()
-        exit(0)
+    Display = Display()
 
     # Read parameters from parameter file
-    # The second string argument is the name of the subdictionary
-    # inside the parameter_.py file
-    ParamModels = Parameters()
-    ParamModels.read_parameters(path_to_parameters_file, "general_parameters")
+    Parameters = Parameters()
+    Parameters.ReadUserInput()
+    Parameters.read_parameters_for("GeneralParameters", "parameters")
+    Parameters.read_parameters_for("InitialConditions", "para_dict")
 
-    Param3dMCG = Parameters()
-    Param3dMCG.read_parameters(path_to_3dMCGlauber_parameters, "para_dict")
+    Display.getVerbosity(Parameters)
+    Display.Title()
 
-    ParamTrData = Parameters()
-    ParamTrData.read_parameters(path_to_parameters_file, "data_parameters")
+    #print(Parameters.fromGeneralParameters["model_names"])
+    
+    # Give Parameters.fromGeneralParameters or Parameters.fromInitialConditions 
+    # Class must have dictionaries
+
+    if Parameters.fromGeneralParameters["mode"] == 0:
+        Display.Message("Mode set to: training models only")
+    elif Parameters.fromGeneralParameters["mode"] == 1:
+        Display.Message("Mode set to: predictions only")
+    elif Parameters.fromGeneralParameters["mode"] == 2:
+        Display.Message("Mode set to: training models and predictions")
+    elif Parameters.fromGeneralParameters["mode"] == 3:
+        Display.Message("Mode set to: models Analysis only")
+    elif Parameters.fromGeneralParameters["mode"] == 4:
+        Display.Message("Mode set to: training and analysis only")
+    else:
+        Display.ModeHelper()
+        sys.exit()
+
+    #print(Parameters.fromInitialConditions["Projectile"])
+    
+    #MLP = MacLearnProcessor(Parameters)
+    #MLP.CheckTrainedModels()
 
     
     # Instantiate MacLearnProcessor
@@ -39,16 +57,10 @@ if __name__ == "__main__":
     # save the prediction into the same folder 
     # profit
 
+    # write the analysis on the trained models and predictions
+
+    
     # Adapt the code for computation on the cluster 
     # parallelize each predictions as much as possible
     # parallelize centralities (or modelType BB, Bp, QQ ...) 
     # with joblib or concurrent.futures
-    
-
-
-
-
-
-
-
-

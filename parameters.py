@@ -1,21 +1,27 @@
-general_parameters = {
+parameters = {
+        # General parameters
         "model_names":["regressor", "Transformer", "GaussianProcess"],
         "prediction_types":["BB", "BQ", "Bp"],
-        "RunOnCluster":False
-}
+        "RunOnCluster":False,
+        "mode":0, # 0: Training only
+                  # 1: Predictions only
+                  # 2: Training and Predictions
+                  # 3: Models Analysis (on existing models)
+                  # 4: Training + Analysis
 
-data_parameters = {
+        # Training Data Parameters
         "dataType":"H5",
         "Data_path":"DATA/yolo.h5",
-        "SetName":"BJ2_PQS_0p2"
-}
+        "SetName":"BJ2_PQS_0p2",
+        "pTCuttOff":[0.2,3],
+        "centralities":[0., 10., 20., 40., 60, 80.],
+        # Check centralities consistency between parameters and init conditions
 
-RidgeRegressorParameters = {
+        # Ridge Regressor
         "Polydegree":2,
-        "RidgeAlpha":0.2
-}
+        "RidgeAlpha":0.2,
 
-TransformerParameters = {
+        #TransformerParameters
         "nhead":1,
         "num_layers":6,
         "dim_feeforward":1024,

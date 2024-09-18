@@ -1,6 +1,10 @@
 from Model import Model
-from sklearn.pipeline import make_pipeline
 import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.pipeline import make_pipeline
+from sklearn.linear_model import Ridge
+import pickle
+
 
 
 class RidgeRegressor(Model):
