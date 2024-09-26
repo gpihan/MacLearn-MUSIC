@@ -1,4 +1,3 @@
-from Model import Model
 from sklearn.pipeline import make_pipeline
 import numpy as np
 import torch
@@ -10,7 +9,7 @@ from sklearn.metrics import mean_squared_error
 from scipy.ndimage import gaussian_filter1d
 
 class TransformerRegressor(nn.Module):
-    def __init__(self, input_dim, output_dim, nhead=73, num_layers=6, dim_feedforward=1024, dropout=0.1):
+    def __init__(self, input_dim, output_dim, nhead=72, num_layers=6, dim_feedforward=1024, dropout=0.1):
         super(TransformerRegressor, self).__init__()
         self.encoder_layer = nn.TransformerEncoderLayer(d_model=input_dim, nhead=nhead, dim_feedforward=dim_feedforward, dropout=dropout)
         self.transformer_encoder = nn.TransformerEncoder(self.encoder_layer, num_layers=num_layers)
@@ -28,14 +27,14 @@ class TransformerRegressor(nn.Module):
         return x
 
 
-class Transformer(Model):
+class Transformer():
     def __init__(self, Param):
         self.nhead = Param["nhead"]
         self.num_layers = Param["num_layers"]
         self.dim_feedforward = Param["dim_feeforward"]
         self.dropout = Param["dropout"]
-        self.batch_size = Param["batch_size"]
-        self.epoch = Param["epoch"]
+        self.batch_size = Param["BatchSize"]
+        self.epoch = Param["epochs"]
         self.learning_rate = Param["learning_rate"]
         self.early_stopping_patience = Param["early_stopping_patience"]
         self.sigma = Param["sigma"]
@@ -47,36 +46,39 @@ class Transformer(Model):
         self.BatchSize = Param["PredictBatchSize"]
         self.GaussianFilterSigma = Param["GaussianFilterSigma"]
 
-    def train(self, Xtrain, Ytrain, Xtest, Ytest):
+    def train(self, TrainingData, chargeIn, chargeOut):
+        Xtrain, Ytrain = tuple(TrainingData.SplitTrainedData[chargeIn][chargeOut]["Train"])
+        Xtest, Ytest = tuple(TrainingData.SplitTrainedData[chargeIn][chargeOut]["Test"])
+        self.Nheads = np.array(Xtrain).shape[1]
         # Convert input arrays into PyTorch Tensors
-        X_train_tensor = torch.FloatTensor(X_train).to(self.device)
-        Y_train_tensor = torch.FloatTensor(Y_train).to(self.device)
-        X_test_tensor = torch.FloatTensor(X_test).to(self.device)
-        Y_test_tensor = torch.FloatTensor(Y_test).to(self.device)
+        X_train_tensor = torch.FloatTensor(Xtrain).to(self.device)
+        Y_train_tensor = torch.FloatTensor(Ytrain).to(self.device)
+        X_test_tensor = torch.FloatTensor(Xtest).to(self.device)
+        Y_test_tensor = torch.FloatTensor(Ytest).to(self.device)
 
         # Create TensorDataset and DataLoader
         train_dataset = TensorDataset(X_train_tensor, Y_train_tensor)
         val_dataset = TensorDataset(X_test_tensor, Y_test_tensor)
-        train_dataloader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        val_dataloader = DataLoader(val_dataset, batch_size=batch_size)
+        train_dataloader = DataLoader(train_dataset, batch_size=self.batch_size, shuffle=True)
+        val_dataloader = DataLoader(val_dataset, batch_size=self.batch_size)
 
         # Initialize the model
         self.input_dim = X_train_tensor.shape[1]
         self.output_dim = Y_train_tensor.shape[1]
-        model = TransformerRegressor(self.input_dim, self.output_dim).to(self.device)
+        model = TransformerRegressor(self.input_dim, self.output_dim, nhead=self.Nheads).to(self.device)
 
         # Define optimizer and loss function
-        optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
+        optimizer = optim.AdamW(model.parameters(), lr=self.learning_rate)
         criterion = nn.SmoothL1Loss()  # Huber loss
         scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode=self.OptimScheduler_mode, 
-                                                         factor=self.OptimScheduler_factor, patience=OptimScheduler_patience, 
+                                                         factor=self.OptimScheduler_factor, patience=self.OptimScheduler_patience, 
                                                          verbose=False)
 
         # Early stopping
         best_val_loss = float('inf')
         early_stopping_counter = 0
         # Training loop
-        for epoch in range(epochs):
+        for epoch in range(self.epoch):
             model.train()
             total_loss = 0
             for batch in train_dataloader:
@@ -121,7 +123,7 @@ class Transformer(Model):
                 best_model_state = model.state_dict()
             else:
                 early_stopping_counter += 1
-                if early_stopping_counter >= early_stopping_patience:
+                if early_stopping_counter >= self.early_stopping_patience:
                     print(f"Early stopping triggered at epoch {epoch + 1}")
                     break
         # Load the best model state

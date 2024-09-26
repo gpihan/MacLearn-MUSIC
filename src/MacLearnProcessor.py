@@ -33,7 +33,9 @@ class MacLearnProcessor():
         # to the tag of one trained models 
         pass
 
-    def LoadModels(self):
+    def LoadModels(self, forRunMode=0):
+        # If run mode = 0: load models that are not in the TrainedModel.
+        # If run mode = 1: load the models that are in the TrainedModel
         pass 
 
     def GeneratePredictions(self):

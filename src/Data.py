@@ -28,10 +28,19 @@ class Data:
         self.pT_max = str(Param["pTCuttOff"][1])
         self.pTstring = "_dNdy_pT_"+self.pT_min+"_"+self.pT_max+".dat"
         self.centralities = Param["centralities"]
-        self.dataSET = {}
+        self.dataSET = []
         self.possibleNuclei = ["Ru", "Zr", "Au"]
         self.NucEncoder = {a:i for i,a in enumerate(self.possibleNuclei)} 
         self.PossibleCharges = ["B", "Q"]
+        self.TestPercentage = 0.2 #Split 20% of input data for tests
+        self.IsProperlyShaped = False
+        self.NumberOfFeatures = 0
+        self.PossibleFeatures = self.getMetaData()
+
+    def getMetaData(self):
+        arr = array([[self.NucEncoder[data[0]], data[1]] for data in self.DataInformation])
+        return [list(set(arr[:,i])) for i in range(len(arr[:,0]))]
+
 
     def loadH5(self, path, Nucleus, fname):
         cen_names = [str(int(a))+"-"+str(int(b)) for a,b in zip(self.centralities[:-1], self.centralities[1:])]
@@ -209,11 +218,11 @@ class Data:
             fpath = h+"/"+fi
             if os.path.splitext(fi) == ".h5":
                 Nucleus = self.checkNuc(fi)
-                self.dataSET[fi] = self.loadH5(fpath, Nucleus, fi)
+                self.dataSET.append(self.loadH5(fpath, Nucleus, fi))
             else:
                 try:
                     with open(fpath, "rb") as pf:
-                        self.dataSET[fi] = pickle.load(pf)
+                        self.dataSET.append(pickle.load(pf))
                 except FileNotFoundError:
                     print("Training dictionary not found.")
                     sys.exit()
@@ -233,16 +242,23 @@ class Data:
         return Xin, Xfin
 
     def AddFeatures(self, Arr, Info):
+        if self.FeatureType > 3 or self.FeatureType < 0:
+            print("Warning: feature type not recognized")
+            self.FeatureType = 0
         match self.FeatureType:
             case 0:
+                self.NumberOfFeatures = 0
                 return Arr
             case 1:
+                self.NumberOfFeatures = 1
                 extra_column = self.NucEncoder[Info[0]]
                 return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
             case 2:
+                self.NumberOfFeatures = 1
                 extra_column = Info[1]
                 return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
             case 3:
+                self.NumberOfFeatures = 2
                 extra_column1 = self.NucEncoder[Info[0]]
                 extra_column2 = Info[1]
                 ArrTemp = hstack((Arr, full((Arr.shape[0], 1), extra_column1)))
@@ -250,10 +266,10 @@ class Data:
 
     def PrepareTrainingData(self):
         # Initialize dictionary to store data for charges 'B' and 'Q'
-        self.PreparedTrainingDataDict = {'B': {'all_Yin': [], 'all_Yfin': [], 'Yfin_netp': [], 
-                                                'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []},
-                                        'Q': {'all_Yin': [], 'all_Yfin': [], 'Yfin_netp': [], 
-                                            'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []}
+        self.PreparedTrainingDataDict = {'B': {'Init': [], 'Final': [], 'NetProton': [], 
+                                                'NetNeutron': [], 'Protons': [], 'Neutrons': []},
+                                        'Q': {'Init': [], 'Final': [], 'NetProton': [], 
+                                            'NetNeutron': [], 'Protons': [], 'Neutrons': []}
         }
         # Iterate through the dictionaries
         for Data, DataInfo in zip(self.dataSET, self.DataInformation):
@@ -265,40 +281,47 @@ class Data:
                                 # Load Xin, Yin, Xfin, Yfin using the load function
                                 Outlist = self.load(Data, Nuc, cent, charge)
                                 
+                                
                                 # Add features for training data classification.
                                 Outlist[0] = self.AddFeatures(Outlist[0], DataInfo)
+                                #print("yolo", [len(a) for a in Outlist])
+                                
                                 
                                 # Append data based on charge
-                                if charge in data_dict:
+                                for charge in self.PreparedTrainingDataDict.keys():
                                     for outType, out in zip(self.PreparedTrainingDataDict[charge].keys(), Outlist):
                                         self.PreparedTrainingDataDict[charge][outType].append(out)
         # Convert lists to numpy arrays for both charges
-        for charge in data_dict:
-            for key in data_dict[charge]:
+        
+        for charge in self.PreparedTrainingDataDict.keys():
+            for key in self.PreparedTrainingDataDict[charge].keys():
                 self.PreparedTrainingDataDict[charge][key] = concatenate(self.PreparedTrainingDataDict[charge][key], axis=0)
 
     def SplitTrainingData(self, OutData, charge):
-            return list(train_test_split(self.PreparedTrainingDataDict[charge]["all_Yin"], OutData, test_size=0.2, random_state=42, shuffle=True))
+            return list(train_test_split(self.PreparedTrainingDataDict[charge]["Init"], OutData, 
+                                         test_size=self.TestPercentage, random_state=42, shuffle=True))
 
-    def PerformDataSplit(self):
-        self.SplitTrainedData = {'B': {'all_Yfin': [], 'Yfin_netp': [], 
-                                                'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []},
-                                        'Q': {'all_Yfin': [], 'Yfin_netp': [], 
-                                            'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []}}
+    def PerformSplitGaussianSmoothing(self):
+        self.SplitTrainedData = {'B': {'Final': {"Train":[], "Test":[]}, 
+                                       'NetProton': {"Train":[], "Test":[]}, 
+                                        'NetNeutron': {"Train":[], "Test":[]},
+                                        'Protons': {"Train":[], "Test":[]},
+                                        'Neutrons': {"Train":[], "Test":[]}},
+                                'Q': {'Final': {"Train":[], "Test":[]}, 
+                                      'NetProton': {"Train":[], "Test":[]}, 
+                                       'NetNeutron': {"Train":[], "Test":[]}, 
+                                       'Protons': {"Train":[], "Test":[]}, 
+                                       'Neutrons': {"Train":[], "Test":[]}}
+                                }
         for charge in self.PossibleCharges:
-            for OutType in list(self.SplitTrainingData[charge].keys()):
-                self.SplitTrainedData[charge][OutType] = self.SplitTrainingData(self.PreparedTrainingDataDict[charge][OutType], charge)
-    
-    def apply_smoothing(self):
-        self.SplitSmoothData = {'B': {'all_Yfin': [], 'Yfin_netp': [], 
-                                                'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []},
-                                        'Q': {'all_Yfin': [], 'Yfin_netp': [], 
-                                            'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []}}
-        for charge in self.PossibleCharges:
-            for OutType in list(self.SplitSmoothData[charge].keys()):
-                XY = self.SplitTrainedData[charge][OutType]
-                Y1smooth = [gaussian_filter1d(y, self.GaussianSmoothingSigma) for y in XY[2]]
-                Y2smooth = [gaussian_filter1d(y, self.GaussianSmoothingSigma) for y in XY[3]]
-                self.SplitSmoothData[charge][OutType] = array([XY[0], XY[1], Y1smooth, Y2smooth])
+            for OutType in self.SplitTrainedData[charge].keys():
+                Xtrain, Xtest, Ytrain, Ytest = self.SplitTrainingData(self.PreparedTrainingDataDict[charge][OutType], charge)
+                Ytrain, Ytest = self.apply_smoothing(Ytrain, Ytest)
+                self.SplitTrainedData[charge][OutType]["Train"] = [Xtrain, Ytrain]
+                self.SplitTrainedData[charge][OutType]["Test"] = [Xtest, Ytest]
+        self.IsProperlyShaped = True
 
-    # To do: define training for RidgeRegression
+    def apply_smoothing(self, Ytrain, Ytest):
+        Ytrain_out = [gaussian_filter1d(y, self.GaussianSmoothingSigma) for y in Ytrain]
+        Ytest_out = [gaussian_filter1d(y, self.GaussianSmoothingSigma) for y in Ytest]
+        return array(Ytrain_out), array(Ytest_out)

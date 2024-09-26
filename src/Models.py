@@ -9,34 +9,41 @@ import pickle
 
 from src.models.Transformer import *
 from src.models.RidgeRegression import RidgeRegressor
+from src.Data import Data
 
 
 class Model:
-    def __init__(self, model_type, Param, InitCondParam):
+    def __init__(self, model_type, Param):
         self.parameters = Param
-        self.InitCondParam = InitCondParam
         self.model_type = model_type
         if model_type == 'Transformer':
             self.model = Transformer(Param)
-        elif model_type == 'RidgeRegression':
+        elif model_type == 'RidgeRegressor':
             self.model = RidgeRegressor(Param)
         else:
             raise ValueError(f"Unknown model type: {model_type}")
     
-    def train(self, Xtrain, Ytrain, Xtest, Ytest, training_metadata):
-        self.model.train(Xtrain, Ytrain, Xtest, Ytest)
-        self.training_metadata = training_metadata
+    def train(self, TrainingData, chargeIn, chargeOut):
+        self.model.train(TrainingData, chargeIn, chargeOut)
+        self.make_metadata(TrainingData, chargeIn, chargeOut)
         self.trained_flag = True
 
-    def make_metadata(self):
+    def make_metadata(self, TrainingData, chargeIn, chargeOut):
         self.metadata = {"ModelParameters":self.parameters, 
-                         "InitialConditionsParameters":self.InitCondParam,
-                         "training_parameters":self.training_metadata}
+                         "NumberOfFeaturesFeatures":TrainingData.NumberOfFeatures,
+                         "FeaturesType":TrainingData.FeatureType,
+                         "PossibleFeatures":TrainingData.PossibleFeatures,
+                         "ChargeIn":chargeIn,
+                         "ChargeOut":chargeOut,
+                         "Type":self.model_type,
+                         "PathToTrainingData":TrainingData.DataPath
+                         }
 
     def save(self):
         if self.trained_flag:
             # Transformer_Au_Bp.pkl for instance
-            fname = self.model_type+"_"+self.training_metadata["Nucleus"]+"_"+self.training_metadata["TrainType"]+".pkl"
+            dirname = self.metadata["PathToTrainingData"].split("/")[-1]
+            fname = self.model_type+dirname+"_"+self.metadata["ChargeIn"]+self.metadata["ChargeOut"]+".pkl"
             Dct = {"model":self.model}
             Dct = {**self.metadata, **Dct}
             fi = open("TrainedModels/"+fname, 'wb')

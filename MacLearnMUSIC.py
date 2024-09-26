@@ -4,6 +4,8 @@ from src.MacLearnProcessor import MacLearnProcessor
 from src.Display import Display
 from src.models.RidgeRegression import RidgeRegressor
 from src.Data import Data
+from src.Models import Model
+import numpy as np
 import sys
 
 if __name__ == "__main__":
@@ -19,20 +21,15 @@ if __name__ == "__main__":
     TrainingData = Data(Parameters.fromGeneralParameters)
     TrainingData.load_data()
     TrainingData.PrepareTrainingData()
-    TrainingData.PerformDataSplit()
-    
+    TrainingData.PerformSplitGaussianSmoothing()
+    #print(np.array(TrainingData.SplitTrainedData["B"]["NetNeutron"]["Train"][0]).shape)
 
 
-    #Nuc = "Au"
-    #cent = "0-10"
-    #charge = "B"
-    #Xin, Yin, Xfin, Yfin, Yfin_netp, Yfin_netn, Yfin_p, Yfin_n = TrainingData.load(Nuc, cent, charge)
-    #print(Xin.shape, Yin.shape, Yfin.shape, Yfin_netp.shape, Yfin_netn.shape, Yfin_p.shape, Yfin_n.shape)
-    #degree = 2
-    #alpha = 2.0
-    #mdl = RidgeRegressor(degree, alpha)
-    #mdl.train()
-    
+    #model = Model("RidgeRegressor", Parameters.fromGeneralParameters)
+    model = Model("Transformer", Parameters.fromGeneralParameters)
+    model.train(TrainingData, "B", "Final")
+    model.save()
+
 
     #Display.getVerbosity(Parameters)
     #Display.Title()

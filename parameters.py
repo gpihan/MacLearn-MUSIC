@@ -17,7 +17,7 @@ parameters = {
         "SetName":"BJ2_PQS_0p2",
         "pTCuttOff":[0.2,3],
         "centralities":[0., 10., 20., 40., 60, 80.],
-        "FeaturesType":4, # Feature type corresponds to the type of features for the classification
+        "FeaturesType":3, # Feature type corresponds to the type of features for the classification
                           # 0, no features, no classification of training data
                           # 1, the training data is split in nucleus
                           # 2, the training data is split in energy
@@ -36,7 +36,8 @@ parameters = {
         "num_layers":6,
         "dim_feeforward":1024,
         "dropout":0.1,
-        "batch_size":128,
+        "BatchSize":128,
+        "PredictBatchSize":128,
         "epochs":350,
         "learning_rate":1e-4,
         "early_stopping_patience":15,
