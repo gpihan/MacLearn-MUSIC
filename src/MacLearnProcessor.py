@@ -5,10 +5,20 @@
 
 class MacLearnProcessor():
     
-    def __init__(self):
-        pass
+    def __init__(self, Parameters):
+        self.QueryModels = Parameters.fromGeneralParameters["model_names"]
+        self.QueryModelType = Parameters.fromGeneralParameters["prediction_types"]
+        self.QueryTrainedOn = Parameters.fromGeneralParameters["TrainedOn"]
+        self.TrainedModels = []
+        self.TrainedModelPath = "TrainedModels"
+    
+    def LoadModelTags():
+        # Load the model tags for checking 
+        # Dictionary?? (That then should be inside the trained models)
+        pass 
     
     def CheckTrainedModels():
+        # Check which input model is not in the trainedModel
         pass 
 
     def GenerateInitialConditions(self):
@@ -18,6 +28,9 @@ class MacLearnProcessor():
         pass
     
     def TrainModels(self):
+        # only the models that needs to be trained
+        # = the ones whos tag is not equal 
+        # to the tag of one trained models 
         pass
 
     def LoadModels(self):

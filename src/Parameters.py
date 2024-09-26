@@ -16,7 +16,7 @@ class Parameters:
             self.ParamPath = str(sys.argv[2])
             self.InitPath = str(sys.argv[3])
         except IndexError:
-            printHelp()
+            PrintHelp()
             exit(0)
 
     def read_parameters_for(self, paramType, DictName=""):

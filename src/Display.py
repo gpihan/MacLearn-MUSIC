@@ -6,6 +6,7 @@ class Display():
     def __init__(self):
         self.verbose = True
         
+        
     def getVerbosity(self, param):
         self.verbose = param.fromGeneralParameters["verbose"]
 
@@ -30,5 +31,4 @@ class Display():
     def Message(self, string):
         if self.verbose:
             print(string)
-        
 

@@ -1,4 +1,3 @@
-from Model import Model
 import numpy as np
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
@@ -7,15 +6,20 @@ import pickle
 
 
 
-class RidgeRegressor(Model):
-    def __init__(self, Param):
+class RidgeRegressor():
+    def __init__(self, TrainingData, degree, alpha):
         self.pipeline = make_pipeline(
-            PolynomialFeatures(degree=Param["Polydegree"]),
-            Ridge(alpha=Param["RidgeAlpha"])
+            PolynomialFeatures(degree=degree),
+            Ridge(alpha=alpha)
         )
-        self.fname = Param["Output_file_name"]
+        #self.fname = Param["Output_file_name"]
+        self.fname = "TestRidgeRegressor.dat"
 
-    def train(self,  X_train, Y_train, X_test, Y_test):
+    # TO DO: define the function as in aryans code
+    def finetune():
+        pass
+
+    def train(self,  X_train, Y_train):
         self.pipeline.fit(X_train, Y_train)
 
     def predict(self, Y):

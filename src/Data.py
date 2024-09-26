@@ -12,22 +12,28 @@ import h5py
 import sys
 import os
 import pickle
-from utils import Particles
+from .utils import Particles
+from scipy.ndimage import gaussian_filter1d
+from sklearn.model_selection import train_test_split
 
 class Data:
     def __init__(self, Param):
         self.dataType = Param["dataType"]
         self.DataPath = Param["DataPath"]
         self.setName = Param["SetName"]
+        self.DataInformation = Param["DataInformation"]
+        self.GaussianSmoothingSigma = Param["GaussianSmoothingSigma"]
+        self.FeatureType = Param["FeaturesType"]
         self.pT_min = str(Param["pTCuttOff"][0])
         self.pT_max = str(Param["pTCuttOff"][1])
         self.pTstring = "_dNdy_pT_"+self.pT_min+"_"+self.pT_max+".dat"
         self.centralities = Param["centralities"]
-        self.Nucleus = Param["Nucleus"]
-        self.dataDICT = {}
+        self.dataSET = {}
+        self.possibleNuclei = ["Ru", "Zr", "Au"]
+        self.NucEncoder = {a:i for i,a in enumerate(self.possibleNuclei)} 
+        self.PossibleCharges = ["B", "Q"]
 
-    
-    def loadH5(self):
+    def loadH5(self, path, Nucleus, fname):
         cen_names = [str(int(a))+"-"+str(int(b)) for a,b in zip(self.centralities[:-1], self.centralities[1:])]
         # Filename for initial distributions 
         initBfile_name = "nB_etas_distribution_N_72.dat"
@@ -38,13 +44,13 @@ class Data:
 
         selected_particles = ["proton", "anti_proton", "neutron", "anti_neutron", "pion_p", "pion_m", "kaon_p", "kaon_m"]
         particles_FINAL_file_names = {particle:"particle_"+Particles[particle]+self.pTstring for particle in selected_particles}
-        h5path = self.DataPath
 
         # reading .h5 file
         db = {}
-        hf = h5py.File(h5path, "r")
+        hf = h5py.File(path, "r")
         event_list = list(hf.keys())
         
+        dataDICT = {Nucleus:{}}
         # file_name for Nch in -0.5, 0.5 for event selection
         file_name = "particle_9999_vndata_eta_-0.5_0.5.dat"
         dNdyDict = {}
@@ -181,33 +187,118 @@ class Data:
             di["netn"]["FINAL"] = NETNFINALARR
 
             db[cen_names[icen]] = di
-        self.dataDICT[self.Nucleus] = db
+        dataDICT[Nucleus] = db
         # Write the dictionary not to lost it
-        fi = open(self.setName+"_dict.dat", 'wb')
-        pickle.dump(self.dataDICT, fi)
+        fi = open(fname+"_dict.dat", 'wb')
+        pickle.dump(dataDICT, fi)
         fi.close()
+        return dataDICT 
 
+    def checkNuc(self, fname):
+        for PossibleNucleus in self.possibleNucleis:
+            if PossibleNucleus in fname:
+                return PossibleNucleus
+        
     def load_data(self):
-        if self.dataType == "H5":
-            self.loadH5()
-        else:
-            try:
-                with open(self.DataPath, "rb") as pf:
-                    self.dataDICT = pickle.load(pf)
-            except FileNotFoundError:
-                print("Training dictionary not found.")
-                sys.exit()
+        # This method reads all the data in each data path
+        # if data is .h5, convert in dictionnary and pickle object first (requires names to contain nucleus)
+        # if data is .dat, assumes its pickle object with 
+        # the data.
+        h, _, files = next(os.walk(self.DataPath))
+        for fi in files:
+            fpath = h+"/"+fi
+            if os.path.splitext(fi) == ".h5":
+                Nucleus = self.checkNuc(fi)
+                self.dataSET[fi] = self.loadH5(fpath, Nucleus, fi)
+            else:
+                try:
+                    with open(fpath, "rb") as pf:
+                        self.dataSET[fi] = pickle.load(pf)
+                except FileNotFoundError:
+                    print("Training dictionary not found.")
+                    sys.exit()
     
-    def load(self, Nuc, cent, charge):
-        Dct = self.dataDICT
+    def load(self, Dct, Nuc, cent, charge):
         Yin = Dct[Nuc][cent][charge]["INITIAL"]
         Yfin = Dct[Nuc][cent][charge]["FINAL"]
         Yfin_netp = Dct[Nuc][cent]['netp']["FINAL"]
         Yfin_netn = Dct[Nuc][cent]['netn']["FINAL"]
         Yfin_p = Dct[Nuc][cent]['p']["FINAL"]
         Yfin_n = Dct[Nuc][cent]['n']["FINAL"]
-        Xin = Dct[Nuc]["INITIAL_eta"] 
-        Xfin = Dct[Nuc]["FINAL_eta"] 
-        return Xin, Yin, Xfin, Yfin, Yfin_netp, Yfin_netn, Yfin_p, Yfin_n
+        return [Yin, Yfin, Yfin_netp, Yfin_netn, Yfin_p, Yfin_n]
 
+    def loadEtas(self, Dct):
+        Xin = Dct[list(Dct.keys())[0]]["INITIAL_eta"] 
+        Xfin = Dct[list(Dct.keys())[0]]["FINAL_eta"] 
+        return Xin, Xfin
+
+    def AddFeatures(self, Arr, Info):
+        match self.FeatureType:
+            case 0:
+                return Arr
+            case 1:
+                extra_column = self.NucEncoder[Info[0]]
+                return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
+            case 2:
+                extra_column = Info[1]
+                return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
+            case 3:
+                extra_column1 = self.NucEncoder[Info[0]]
+                extra_column2 = Info[1]
+                ArrTemp = hstack((Arr, full((Arr.shape[0], 1), extra_column1)))
+                return hstack((ArrTemp, full((ArrTemp.shape[0], 1), extra_column2)))
+
+    def PrepareTrainingData(self):
+        # Initialize dictionary to store data for charges 'B' and 'Q'
+        self.PreparedTrainingDataDict = {'B': {'all_Yin': [], 'all_Yfin': [], 'Yfin_netp': [], 
+                                                'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []},
+                                        'Q': {'all_Yin': [], 'all_Yfin': [], 'Yfin_netp': [], 
+                                            'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []}
+        }
+        # Iterate through the dictionaries
+        for Data, DataInfo in zip(self.dataSET, self.DataInformation):
+            for Nuc, cent_dict in Data.items():
+                for cent, charge_dict in cent_dict.items():
+                    if isinstance(charge_dict, dict):
+                        for charge, data_dict in charge_dict.items():
+                            if isinstance(data_dict, dict) and "INITIAL" in data_dict and "FINAL" in data_dict:
+                                # Load Xin, Yin, Xfin, Yfin using the load function
+                                Outlist = self.load(Data, Nuc, cent, charge)
+                                
+                                # Add features for training data classification.
+                                Outlist[0] = self.AddFeatures(Outlist[0], DataInfo)
+                                
+                                # Append data based on charge
+                                if charge in data_dict:
+                                    for outType, out in zip(self.PreparedTrainingDataDict[charge].keys(), Outlist):
+                                        self.PreparedTrainingDataDict[charge][outType].append(out)
+        # Convert lists to numpy arrays for both charges
+        for charge in data_dict:
+            for key in data_dict[charge]:
+                self.PreparedTrainingDataDict[charge][key] = concatenate(self.PreparedTrainingDataDict[charge][key], axis=0)
+
+    def SplitTrainingData(self, OutData, charge):
+            return list(train_test_split(self.PreparedTrainingDataDict[charge]["all_Yin"], OutData, test_size=0.2, random_state=42, shuffle=True))
+
+    def PerformDataSplit(self):
+        self.SplitTrainedData = {'B': {'all_Yfin': [], 'Yfin_netp': [], 
+                                                'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []},
+                                        'Q': {'all_Yfin': [], 'Yfin_netp': [], 
+                                            'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []}}
+        for charge in self.PossibleCharges:
+            for OutType in list(self.SplitTrainingData[charge].keys()):
+                self.SplitTrainedData[charge][OutType] = self.SplitTrainingData(self.PreparedTrainingDataDict[charge][OutType], charge)
     
+    def apply_smoothing(self):
+        self.SplitSmoothData = {'B': {'all_Yfin': [], 'Yfin_netp': [], 
+                                                'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []},
+                                        'Q': {'all_Yfin': [], 'Yfin_netp': [], 
+                                            'Yfin_netn': [], 'Yfin_p': [], 'Yfin_n': []}}
+        for charge in self.PossibleCharges:
+            for OutType in list(self.SplitSmoothData[charge].keys()):
+                XY = self.SplitTrainedData[charge][OutType]
+                Y1smooth = [gaussian_filter1d(y, self.GaussianSmoothingSigma) for y in XY[2]]
+                Y2smooth = [gaussian_filter1d(y, self.GaussianSmoothingSigma) for y in XY[3]]
+                self.SplitSmoothData[charge][OutType] = array([XY[0], XY[1], Y1smooth, Y2smooth])
+
+    # To do: define training for RidgeRegression
