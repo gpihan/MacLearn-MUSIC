@@ -11,7 +11,6 @@ from src.models.Transformer import *
 from src.models.RidgeRegression import RidgeRegressor
 from src.Data import Data
 
-
 class Model:
     def __init__(self, model_type, Param):
         self.parameters = Param
@@ -37,7 +36,10 @@ class Model:
                          "ChargeOut":chargeOut,
                          "Type":self.model_type,
                          "PathToTrainingData":TrainingData.DataPath
-                         }
+                        }
+    
+    def predict(self, Y):
+        self.model.predict(Y)
 
     def save(self):
         if self.trained_flag:

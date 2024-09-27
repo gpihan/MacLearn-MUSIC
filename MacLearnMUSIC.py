@@ -2,9 +2,11 @@ from src.utils import *
 from src.Parameters import Parameters
 from src.MacLearnProcessor import MacLearnProcessor
 from src.Display import Display
+from src.Emulator import Emulator
 from src.models.RidgeRegression import RidgeRegressor
 from src.Data import Data
 from src.Models import Model
+from src.InitialConditions import InitialConditions
 import numpy as np
 import sys
 
@@ -29,6 +31,20 @@ if __name__ == "__main__":
     model = Model("Transformer", Parameters.fromGeneralParameters)
     model.train(TrainingData, "B", "Final")
     model.save()
+
+
+    ###### Predictions
+    ModelEmulator = Emulator(Parameters.fromGeneralParameters)
+    ModelEmulator.loadModels()
+    ModelEmulator.ReadModelsFeatures()
+    
+    InitialCondition = InitialConditions(Parameters)
+    InitialCondition.getFeatures()
+    InitialCondition.SelectFeatures(ModelEmulator.ModelsFeaturesType, 
+                                    ModelEmulator.ModelsPossibleFeatures)
+    InitialCondition.generate()
+    ModelEmulator.predict(InitialCondition)
+
 
 
     #Display.getVerbosity(Parameters)

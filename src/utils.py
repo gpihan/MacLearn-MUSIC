@@ -1,4 +1,7 @@
 import sys
+import os
+import random
+import string
 
 # All particles available
 particle_list = ['9999', '211', '321', '2212', '-211', '-321', '-2212', 
@@ -12,3 +15,12 @@ particle_name_list = ['charged_hadron', 'pion_p', 'kaon_p', 'proton',
                       'Omega', 'anti_Omega', 'phi', 'pion_0', 'kaon_0', 'anti_kaon_0', 'neutron', 'anti_neutron']
 
 Particles = {name:pdg_id for name,pdg_id in zip(particle_name_list, particle_list)}
+
+def create_folder(folder_path):
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+        return folder_path
+    else:
+        random_char = random.choice(string.ascii_letters)
+        folder_path_ = folder_path+"_"+str(random_char)
+        return create_folder(folder_path_)

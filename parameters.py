@@ -1,21 +1,26 @@
 parameters = {
-        # General parameters
-        "model_names":["regressor", "Transformer", "GaussianProcess"],
-        "TrainedOn":["Ru", "Zr", "Au"],
-        "prediction_types":["BB", "BQ", "Bp"],
-        "RunOnCluster":False,
-        "InitialConditions":"3DMCGlauber",
+        # General parameters #########################################
         "mode":0, # 0: Training only
                   # 1: Predictions only
                   # 2: Training and Predictions
                   # 3: Models Analysis (on existing models)
-                  # 4: Training + Analysis
+                  # 4: Training + Analysis + predictions
 
-        # Training Data Parameters
+        # Prediction Parameters ################################################
+        # Models in /TrainedModels on which to perform predictions.
+        "ModelNames":["TransformerAuRuZr_BFinal", "RidgeRegressorAuRuZr_BFinal"],
+        "PredictionOn":["B", "Q"],
+        "RunOnCluster":False,
+        "InitialConditions":"3DMCGlauber",
+        "OutputFolder":"AuAu19",
+        "Nev":1000,
+
+
+        # Training Data Parameters #####################################
         "dataType":"dict",
         "DataPath":"TrainingData/AuRuZr",
         "SetName":"BJ2_PQS_0p2",
-        "pTCuttOff":[0.2,3],
+        "pTCuttOff":[0.2, 3],
         "centralities":[0., 10., 20., 40., 60, 80.],
         "FeaturesType":3, # Feature type corresponds to the type of features for the classification
                           # 0, no features, no classification of training data

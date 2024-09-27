@@ -6,15 +6,13 @@ class Parameters:
     def __init__(self):
         self.fromGeneralParameters = {}
         self.fromInitialConditions = {}
-        self.Nev = 0
         self.ParamPath = ""
         self.InitPath = ""
     
     def ReadUserInput(self):
         try:
-            self.Nev = int(sys.argv[1])
-            self.ParamPath = str(sys.argv[2])
-            self.InitPath = str(sys.argv[3])
+            self.ParamPath = str(sys.argv[1])
+            self.InitPath = str(sys.argv[2])
         except IndexError:
             PrintHelp()
             exit(0)
