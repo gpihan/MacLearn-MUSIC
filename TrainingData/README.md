@@ -1,16 +1,16 @@
 ## Training Data folder
 
-# Purpose
+## Purpose
 All the batch of training data should be in this folder.
 
 # Definition
 A batch of training data is made of different dictionnaries or .h5 files output from iEBE-MUSIC.
 This batch is contained in a folder inside this directory. 
 
-# Use
+## Use
 To train a model on a batch of training data, simply give the name of the folder in the parameter file.
 
-# Features
+## Features
 The models are trained with potential features. The features corresponds to the additional information 
 given to the training procedure to increase the accuracy. 
 For instance if the training batch contains data from different nucleus it may be interesting to give 
