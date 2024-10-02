@@ -40,7 +40,7 @@ class Emulator:
         for i, (Model, charge) in enumerate(zip(self.Models, self.PredictionOn)):
             InitialConditions.AddFeatures(i)
             InitialConditions.get(charge)
-            Model.predict(InitialConditions.InitArray)
+            Model.predict(InitialConditions.ForCurrentCharge)
             InitialConditions.CleanFeatures()
 
         # For all models in self.Models 

@@ -29,6 +29,7 @@ parameters = {
                           # 3, the training data is split in nucleus and energy
         # Contain nucleus name and energy to help for classification in training.
         # Should have the same size as the number of folder in DataPath.
+        # The order is not important.
         "DataInformation":[["Au", 19.6], ["Au", 200]],
         # Check centralities consistency between parameters and init conditions
         "GaussianSmoothingSigma":3,

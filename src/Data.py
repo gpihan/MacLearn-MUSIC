@@ -214,6 +214,7 @@ class Data:
         # if data is .dat, assumes its pickle object with 
         # the data.
         h, _, files = next(os.walk(self.DataPath))
+        self.lenDataPath = len(files)
         for fi in files:
             fpath = h+"/"+fi
             if os.path.splitext(fi) == ".h5":
@@ -244,6 +245,8 @@ class Data:
     def AddFeatures(self, Arr, Info):
         if self.FeatureType > 3 or self.FeatureType < 0:
             print("Warning: feature type not recognized")
+            self.FeatureType = 0
+        if self.lenDataPath =! len(self.DataInformation):
             self.FeatureType = 0
         match self.FeatureType:
             case 0:

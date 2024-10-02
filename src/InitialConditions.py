@@ -9,7 +9,7 @@ class InitialConditions():
             self.InitialCondition = Init3DMCG(Param, InitCondParam, Parameters.InitPath)
         self.parameters = InitCondParam
         self.PredictionOn = Param["PredictionOn"]
-        self.InitArr = []
+        self.ForCurrentCharge = []
 
         # Add initial conditions if new initial conditions codes are available
         # Also add in the .gitmodules
@@ -77,4 +77,4 @@ class InitialConditions():
         self.OrigLen = len(self.InitArrayDict["nb"][0,:])
 
     def get(self, charge):
-        self.InitArr = self.InitArrayDict[charge]
+        self.ForCurrentCharge = self.InitArrayDict[charge]
