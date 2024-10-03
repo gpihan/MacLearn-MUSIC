@@ -1,6 +1,7 @@
 import sys
 import importlib
 from .utils import *
+from .Display import Display
 
 class Parameters:
     def __init__(self):
@@ -8,13 +9,14 @@ class Parameters:
         self.fromInitialConditions = {}
         self.ParamPath = ""
         self.InitPath = ""
+        self.display = Display()
     
     def ReadUserInput(self):
         try:
             self.ParamPath = str(sys.argv[1])
             self.InitPath = str(sys.argv[2])
         except IndexError:
-            PrintHelp()
+            self.display.Helper()
             exit(0)
 
     def read_parameters_for(self, paramType, DictName=""):

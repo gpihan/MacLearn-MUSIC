@@ -13,6 +13,7 @@ class Emulator:
         self.ModelsPath = ["TrainedModels/"+modelName for modelName in Param["ModelNames"]]
         self.EmulatorLoaded = False
         self.PredictionOn = Param["PredictionOn"]
+        self.OutputFolder = "OUTPUT/"+Param["OutputFolder"]
 
     def loadModels(self):
         self.Models = []
@@ -37,14 +38,9 @@ class Emulator:
                 print(parameter, ":", value)
 
     def predict(self, InitialConditions):
-        for i, (Model, charge) in enumerate(zip(self.Models, self.PredictionOn)):
+        for i, (Model, charge, modelname) in enumerate(zip(self.Models, self.PredictionOn, self.ModelNames)):
             InitialConditions.AddFeatures(i)
             InitialConditions.get(charge)
             Model.predict(InitialConditions.ForCurrentCharge)
+            Model.save_predictions(self.OutputFolder, charge, modelname)
             InitialConditions.CleanFeatures()
-
-        # For all models in self.Models 
-        # perform the prediction on InitialConditions B or Q Array 
-        # (give an index i corresponding to model i)
-        # save predicted values into file
-        pass

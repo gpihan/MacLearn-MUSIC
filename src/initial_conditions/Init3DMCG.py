@@ -2,7 +2,7 @@ import os
 import shutil
 import numpy as np
 import subprocess
-from utils import *
+from ..utils import *
 
 class Init3DMCG():
     def __init__(self, Param, InitCondParam, InitPath):
@@ -15,9 +15,9 @@ class Init3DMCG():
     
     def PrepareFolder(self):
         self.Folder_path = create_folder("OUTPUT/"+self.OutputFolder)
-        self.Fname_out = Folder_path.split("/")[-1]
-        shutil.copyfile(self.parameter_path, Folder_path+"/parameters.py")
-        shutil.copyfile(self.path+"/input", Folder_path+"/input")
+        self.Fname_out = self.Folder_path.split("/")[-1]
+        shutil.copyfile(self.parameter_path, self.Folder_path+"/parameters.py")
+        shutil.copyfile(self.path+"/input", self.Folder_path+"/input")
         os.system("ln -s "+self.path+"/3dMCGlb.e " +os.path.abspath(self.Folder_path)+"/3DMCG")
         os.system("ln -s "+self.path+"/Metropolis.e " +os.path.abspath(self.Folder_path)+"/Metropolis.e")
         os.system("ln -s "+self.path+"/tables " +os.path.abspath(self.Folder_path)+"/tables")

@@ -18,7 +18,6 @@ from sklearn.model_selection import train_test_split
 
 class Data:
     def __init__(self, Param):
-        self.dataType = Param["dataType"]
         self.DataPath = Param["DataPath"]
         self.setName = Param["SetName"]
         self.DataInformation = Param["DataInformation"]
@@ -29,7 +28,7 @@ class Data:
         self.pTstring = "_dNdy_pT_"+self.pT_min+"_"+self.pT_max+".dat"
         self.centralities = Param["centralities"]
         self.dataSET = []
-        self.possibleNuclei = ["Ru", "Zr", "Au"]
+        self.possibleNuclei = Param["PossibleNuclei"]
         self.NucEncoder = {a:i for i,a in enumerate(self.possibleNuclei)} 
         self.PossibleCharges = ["B", "Q"]
         self.TestPercentage = 0.2 #Split 20% of input data for tests
@@ -39,8 +38,14 @@ class Data:
 
     def getMetaData(self):
         arr = array([[self.NucEncoder[data[0]], data[1]] for data in self.DataInformation])
-        return [list(set(arr[:,i])) for i in range(len(arr[:,0]))]
-
+        A = set(arr[:,0])
+        B = set(arr[:,1])
+        L = [a for a in A]
+        for b in B:
+            L.append(b)
+        print(L)
+        #return [list(set(arr[:,i])) for i in range(len(arr[:,0]))]
+        return L
 
     def loadH5(self, path, Nucleus, fname):
         cen_names = [str(int(a))+"-"+str(int(b)) for a,b in zip(self.centralities[:-1], self.centralities[1:])]
@@ -246,7 +251,7 @@ class Data:
         if self.FeatureType > 3 or self.FeatureType < 0:
             print("Warning: feature type not recognized")
             self.FeatureType = 0
-        if self.lenDataPath =! len(self.DataInformation):
+        if self.lenDataPath != len(self.DataInformation):
             self.FeatureType = 0
         match self.FeatureType:
             case 0:
@@ -269,9 +274,9 @@ class Data:
 
     def PrepareTrainingData(self):
         # Initialize dictionary to store data for charges 'B' and 'Q'
-        self.PreparedTrainingDataDict = {'B': {'Init': [], 'Final': [], 'NetProton': [], 
+        self.PreparedTrainingDataDict = {'B': {'Init': [], 'B': [], 'NetProton': [], 
                                                 'NetNeutron': [], 'Protons': [], 'Neutrons': []},
-                                        'Q': {'Init': [], 'Final': [], 'NetProton': [], 
+                                        'Q': {'Init': [], 'Q': [], 'NetProton': [], 
                                             'NetNeutron': [], 'Protons': [], 'Neutrons': []}
         }
         # Iterate through the dictionaries
@@ -305,12 +310,12 @@ class Data:
                                          test_size=self.TestPercentage, random_state=42, shuffle=True))
 
     def PerformSplitGaussianSmoothing(self):
-        self.SplitTrainedData = {'B': {'Final': {"Train":[], "Test":[]}, 
+        self.SplitTrainedData = {'B': {'B': {"Train":[], "Test":[]}, 
                                        'NetProton': {"Train":[], "Test":[]}, 
                                         'NetNeutron': {"Train":[], "Test":[]},
                                         'Protons': {"Train":[], "Test":[]},
                                         'Neutrons': {"Train":[], "Test":[]}},
-                                'Q': {'Final': {"Train":[], "Test":[]}, 
+                                'Q': {'Q': {"Train":[], "Test":[]}, 
                                       'NetProton': {"Train":[], "Test":[]}, 
                                        'NetNeutron': {"Train":[], "Test":[]}, 
                                        'Protons': {"Train":[], "Test":[]}, 

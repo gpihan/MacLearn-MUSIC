@@ -12,7 +12,6 @@ class Display():
 
     def Helper(self):
         print("Usage: python3 MacLearnMUSIC.py nev path_to_parameters path_to_3dMCGlauber_parameters")
-        print("nev: the number of initial stage events from 3DMCGlauber")
         print("path_to_parameters: The parameter dictionnary for prediction models")
         print("path_to_3dMCGlauber_parameters: The parameter dictionnary for 3DMCGlauber")
     

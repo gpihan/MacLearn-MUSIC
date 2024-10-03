@@ -5,19 +5,19 @@ parameters = {
                   # 2: Training and Predictions
                   # 3: Models Analysis (on existing models)
                   # 4: Training + Analysis + predictions
+        "PossibleNuclei":["Ru", "Zr", "Au"],
 
         # Prediction Parameters ################################################
         # Models in /TrainedModels on which to perform predictions.
-        "ModelNames":["TransformerAuRuZr_BFinal", "RidgeRegressorAuRuZr_BFinal"],
+        "ModelNames":["TransformerAuRuZr_BNetProton", "RidgeRegressorAuRuZr_BB"],
         "PredictionOn":["B", "Q"],
         "RunOnCluster":False,
         "InitialConditions":"3DMCGlauber",
         "OutputFolder":"AuAu19",
-        "Nev":1000,
+        "Nev":10,
 
 
         # Training Data Parameters #####################################
-        "dataType":"dict",
         "DataPath":"TrainingData/AuRuZr",
         "SetName":"BJ2_PQS_0p2",
         "pTCuttOff":[0.2, 3],
@@ -33,8 +33,10 @@ parameters = {
         "DataInformation":[["Au", 19.6], ["Au", 200]],
         # Check centralities consistency between parameters and init conditions
         "GaussianSmoothingSigma":3,
+
+        
         # Ridge Regressor
-        "Polydegree":2,
+        "PolyDegree":2,
         "RidgeAlpha":0.2,
 
         #TransformerParameters

@@ -20,21 +20,27 @@ if __name__ == "__main__":
     Parameters.read_parameters_for("GeneralParameters", "parameters")
     Parameters.read_parameters_for("InitialConditions", "para_dict")
     
-    TrainingData = Data(Parameters.fromGeneralParameters)
-    TrainingData.load_data()
-    TrainingData.PrepareTrainingData()
-    TrainingData.PerformSplitGaussianSmoothing()
+
+    ######### Training 
+    #TrainingData = Data(Parameters.fromGeneralParameters)
+    #TrainingData.load_data()
+    #TrainingData.PrepareTrainingData()
+    #TrainingData.PerformSplitGaussianSmoothing()
     #print(np.array(TrainingData.SplitTrainedData["B"]["NetNeutron"]["Train"][0]).shape)
 
 
-    #model = Model("RidgeRegressor", Parameters.fromGeneralParameters)
-    model = Model("Transformer", Parameters.fromGeneralParameters)
-    model.train(TrainingData, "B", "Final")
-    model.save()
+    #Ridgemodel = Model("RidgeRegressor", Parameters.fromGeneralParameters)
+    #Transformermodel = Model("Transformer", Parameters.fromGeneralParameters)
+    #Ridgemodel.train(TrainingData, "B", "B")
+    #Ridgemodel.save()
+    #Transformermodel.train(TrainingData, "B", "NetProton")
+    #Transformermodel.save()
+    
 
 
     ###### Predictions
     ModelEmulator = Emulator(Parameters.fromGeneralParameters)
+
     ModelEmulator.loadModels()
     ModelEmulator.ReadModelsFeatures()
     
@@ -43,7 +49,7 @@ if __name__ == "__main__":
     InitialCondition.SelectFeatures(ModelEmulator.ModelsFeaturesType, 
                                     ModelEmulator.ModelsPossibleFeatures)
     InitialCondition.generate()
-    ModelEmulator.predict(InitialCondition)
+    #ModelEmulator.predict(InitialCondition)
 
 
 

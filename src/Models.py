@@ -15,6 +15,7 @@ class Model:
     def __init__(self, model_type, Param):
         self.parameters = Param
         self.model_type = model_type
+        self.predictions = []
         if model_type == 'Transformer':
             self.model = Transformer(Param)
         elif model_type == 'RidgeRegressor':
@@ -39,13 +40,19 @@ class Model:
                         }
     
     def predict(self, Y):
-        self.model.predict(Y)
+        self.predictions = self.model.predict(Y)
+    
+    def save_predictions(self, OutputFolder, charge, modelName):
+        fnameOut = modelName+"_"+charge
+        
+
+        pass
 
     def save(self):
         if self.trained_flag:
-            # Transformer_Au_Bp.pkl for instance
+            # Transformer_Au_Bp for instance
             dirname = self.metadata["PathToTrainingData"].split("/")[-1]
-            fname = self.model_type+dirname+"_"+self.metadata["ChargeIn"]+self.metadata["ChargeOut"]+".pkl"
+            fname = self.model_type+dirname+"_"+self.metadata["ChargeIn"]+self.metadata["ChargeOut"]
             Dct = {"model":self.model}
             Dct = {**self.metadata, **Dct}
             fi = open("TrainedModels/"+fname, 'wb')
