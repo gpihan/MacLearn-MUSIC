@@ -44,16 +44,16 @@ class Model:
     
     def save_predictions(self, OutputFolder, charge, modelName):
         fnameOut = modelName+"_"+charge
-        
-
-        pass
+        fi = open(OutputFolder+"/"+fnameOut, 'wb')
+        pickle.dump(self.predictions, fi)
+        fi.close()
 
     def save(self):
         if self.trained_flag:
             # Transformer_Au_Bp for instance
             dirname = self.metadata["PathToTrainingData"].split("/")[-1]
             fname = self.model_type+dirname+"_"+self.metadata["ChargeIn"]+self.metadata["ChargeOut"]
-            Dct = {"model":self.model}
+            Dct = {"model":self}
             Dct = {**self.metadata, **Dct}
             fi = open("TrainedModels/"+fname, 'wb')
             pickle.dump(Dct, fi)

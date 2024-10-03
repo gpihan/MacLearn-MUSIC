@@ -12,21 +12,24 @@ class Init3DMCG():
         self.path = "submodules/3dMCGlauber"
         self.Nev = Param["Nev"]
         self.PrepareFolder()
+
+    ## To generalize to different init cond
     
     def PrepareFolder(self):
         self.Folder_path = create_folder("OUTPUT/"+self.OutputFolder)
         self.Fname_out = self.Folder_path.split("/")[-1]
-        shutil.copyfile(self.parameter_path, self.Folder_path+"/parameters.py")
+        shutil.copyfile(self.parameter_path, self.Folder_path+"/input3dMCG_default.py")
         shutil.copyfile(self.path+"/input", self.Folder_path+"/input")
-        os.system("ln -s "+self.path+"/3dMCGlb.e " +os.path.abspath(self.Folder_path)+"/3DMCG")
-        os.system("ln -s "+self.path+"/Metropolis.e " +os.path.abspath(self.Folder_path)+"/Metropolis.e")
-        os.system("ln -s "+self.path+"/tables " +os.path.abspath(self.Folder_path)+"/tables")
+        os.system("ln -s "+os.path.abspath(self.path+"/3dMCGlb.e") + " " +os.path.abspath(self.Folder_path)+"/3DMCG")
+        os.system("ln -s "+os.path.abspath(self.path+"/Metropolis.e") + " " +os.path.abspath(self.Folder_path)+"/Metropolis.e")
+        os.system("ln -s "+os.path.abspath(self.path+"/tables") + " " +os.path.abspath(self.Folder_path)+"/tables")
         return self.Folder_path, self.Fname_out
     
     def generate(self):
         """ This function generates nev initial stage
             events using 3DMCGlauber set on paraDict parameters
         """
+        h = os.getcwd()
         os.chdir(os.path.abspath(self.Folder_path))
         command = "./3DMCG {} input -1 batch_density_output=1".format(self.Nev)
         for ikey in self.Parameters.keys():
@@ -46,5 +49,5 @@ class Init3DMCG():
         edArr = edArr[1:]
         nBArr = nBArr[1:]
         nQArr = nQArr[1:]
-        os.chdir(self.path)
+        os.chdir(h)
         return eta, edArr, nBArr, nQArr

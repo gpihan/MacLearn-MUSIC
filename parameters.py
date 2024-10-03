@@ -10,7 +10,7 @@ parameters = {
         # Prediction Parameters ################################################
         # Models in /TrainedModels on which to perform predictions.
         "ModelNames":["TransformerAuRuZr_BNetProton", "RidgeRegressorAuRuZr_BB"],
-        "PredictionOn":["B", "Q"],
+        "PredictionOn":["B", "B"],
         "RunOnCluster":False,
         "InitialConditions":"3DMCGlauber",
         "OutputFolder":"AuAu19",

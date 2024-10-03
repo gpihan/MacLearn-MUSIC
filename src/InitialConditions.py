@@ -79,4 +79,8 @@ class InitialConditions():
         self.OrigLen = len(self.InitArrayDict["nb"][0,:])
 
     def get(self, charge):
-        self.ForCurrentCharge = self.InitArrayDict[charge]
+        if charge == "B":
+            key = "nb"
+        elif charge == "Q":
+            key = "nq"
+        self.ForCurrentCharge = self.InitArrayDict[key]

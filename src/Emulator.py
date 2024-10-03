@@ -41,6 +41,6 @@ class Emulator:
         for i, (Model, charge, modelname) in enumerate(zip(self.Models, self.PredictionOn, self.ModelNames)):
             InitialConditions.AddFeatures(i)
             InitialConditions.get(charge)
-            Model.predict(InitialConditions.ForCurrentCharge)
-            Model.save_predictions(self.OutputFolder, charge, modelname)
+            Model["model"].predict(InitialConditions.ForCurrentCharge)
+            Model["model"].save_predictions(InitialConditions.InitialCondition.Folder_path, charge, modelname)
             InitialConditions.CleanFeatures()

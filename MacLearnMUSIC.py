@@ -49,7 +49,7 @@ if __name__ == "__main__":
     InitialCondition.SelectFeatures(ModelEmulator.ModelsFeaturesType, 
                                     ModelEmulator.ModelsPossibleFeatures)
     InitialCondition.generate()
-    #ModelEmulator.predict(InitialCondition)
+    ModelEmulator.predict(InitialCondition)
 
 
 
