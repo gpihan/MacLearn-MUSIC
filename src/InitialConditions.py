@@ -1,17 +1,31 @@
 from src.initial_conditions.Init3DMCG import Init3DMCG
 import numpy as np
+import glob
+import sys
+import ast
 
 class InitialConditions():
     def __init__(self, Parameters):
         Param = Parameters.fromGeneralParameters
         InitCondParam = Parameters.fromInitialConditions
-        if Param["InitialConditions"] == "3DMCGlauber":
-            self.InitialCondition = Init3DMCG(Param, InitCondParam, Parameters.InitPath)
+
         self.parameters = InitCondParam
         self.PredictionOn = Param["PredictionOn"]
         self.ForCurrentCharge = []
         self.possibleNuclei = Param["PossibleNuclei"]
         self.NucEncoder = {a:i for i,a in enumerate(self.possibleNuclei)} 
+        self.PredictionMode = Param["PredictionMode"]
+
+        if self.PredictionMode == 0:
+            if Param["InitialConditions"] == "3DMCGlauber":
+                self.InitialCondition = Init3DMCG(Param, InitCondParam, Parameters.InitPath)
+        elif self.PredictionMode == 1:
+            self.InitFolderPath = Param["InitFolder"]
+            self.InitFolder = "OUTPUT/"+ Param["InitFolder"]
+            self.PredictOutputPath = Param["PredictOutputPath"]
+            self.InitReadType = Param["InitReadType"]
+
+        
 
         # Add initial conditions if new initial conditions codes are available
         # Also add in the .gitmodules
@@ -19,9 +33,39 @@ class InitialConditions():
     def getFeatures(self):
         self.features = [self.NucEncoder[self.parameters["Projectile"]], self.parameters["roots"]]
 
+    def readFeatures(self):
+        ParaDict, local_vars = {}, {}
+        try:
+            with open(glob.glob(self.InitFolder+"/*.py")[0]) as fi:
+                data = fi.read()
+                exec(f"ParaDict = {data}", {}, local_vars)
+                ParaDict = local_vars['ParaDict']
+            self.features = [self.NucEncoder[ParaDict["Projectile"]], ParaDict["roots"]]
+        except:
+            print("Error: Something went wrong in reading the features in prediction mode 1. See InitialConditions.py.")
+            sys.exit()
+
+
+
+
+    #def getFeatures(self):
+    #    if self.PredictionMode == 0:
+    #        self.features = [self.NucEncoder[self.parameters["Projectile"]], self.parameters["roots"]]
+    #    elif self.PredictionMode == 1:
+    #        ParaDict, local_vars = {}, {}
+    #        try:
+    #            with open(glob.glob(self.InitFolder+"/*.py")[0]) as fi:
+    #                data = fi.read()
+    #                exec(f"ParaDict = {data}", {}, local_vars)
+    #                ParaDict = local_vars['ParaDict']
+    #            self.features = [self.NucEncoder[ParaDict["Projectile"]], ParaDict["roots"]]
+    #        except:
+    #            print("Error: Something went wrong in reading the features in prediction mode 1. See InitialConditions.py.")
+    #            sys.exit()
+
     def SelectFeatures(self, ModelsFeaturesType, ModelsPossibleFeatures):
         self.FeaturesToAdd = []
-        for i, (ModelFeatureType, PossFeatures) in enumerate(zip(ModelsFeaturesType, ModelsPossibleFeatures)):
+        for ModelFeatureType, PossFeatures in zip(ModelsFeaturesType, ModelsPossibleFeatures):
             if ModelFeatureType == 0:
                 self.FeaturesToAdd.append([None])
             elif ModelFeatureType == 1:
@@ -73,9 +117,38 @@ class InitialConditions():
         for key in ["ed", "nb", "nq"]:
             self.InitArrayDict[key] = self.InitArrayDict[key][:,:self.OrigLen]
 
+    def read(self, path=""):
+        if self.InitReadType == "3DMCGlauber":
+            N = 72
+            if path == "":
+                PATH = ""
+            else:
+                PATH = path.rstrip("/")+"/"
+            print(PATH)
+            edArr = np.fromfile(PATH+"ed_etas_distribution_N_72.dat", dtype="float32").reshape(-1, N)
+            nBArr = np.fromfile(PATH+"nB_etas_distribution_N_72.dat", dtype="float32").reshape(-1, N)
+            nQArr = np.fromfile(PATH+"nQ_etas_distribution_N_72.dat", dtype="float32").reshape(-1, N)
+            return nBArr[0], edArr[1:], nBArr[1:], nQArr[1:]
+        else:
+            print("No other reading type implmented now. Only 3D MC Glauber")
+            sys.exit()
+
+    #def generate(self):
+    #    names = ["eta", "ed", "nb", "nq"]
+    #    if self.PredictionMode == 0:
+    #        self.InitArrayDict = {name:stuff for name, stuff in zip(names, tuple(self.InitialCondition.generate()))}            
+    #        self.OrigLen = len(self.InitArrayDict["nb"][0,:])
+    #    elif self.PredictionMode == 1:
+    #        self.InitArrayDict = {name:stuff for name, stuff in zip(names, tuple(self.read(path=self.InitFolder)))}            
+    #        self.OrigLen = len(self.InitArrayDict["nb"][0,:])
+
     def generate(self):
         names = ["eta", "ed", "nb", "nq"]
-        self.InitArrayDict = {name:stuff for name, stuff in zip(names, tuple(self.InitialCondition.generate()))}
+        self.InitArrayDict = {name:stuff for name, stuff in zip(names, tuple(self.InitialCondition.generate()))}            
+        self.OrigLen = len(self.InitArrayDict["nb"][0,:])
+
+    def read(self):
+        self.InitArrayDict = {name:stuff for name, stuff in zip(names, tuple(self.read(path=self.InitFolder)))}            
         self.OrigLen = len(self.InitArrayDict["nb"][0,:])
 
     def get(self, charge):

@@ -1,27 +1,46 @@
 parameters = {
-        # General parameters #########################################
-        "mode":0, # 0: Training only
-                  # 1: Predictions only
-                  # 2: Training and Predictions
-                  # 3: Models Analysis (on existing models)
-                  # 4: Training + Analysis + predictions
+        ###############################################################
+        # General parameters ##########################################
+        "RunningMode":0, # 0: Training mode
+                        # 1: Predictions mode
+                        # 2: Analysis mode (on existing models)
+
         "PossibleNuclei":["Ru", "Zr", "Au"],
 
-        # Prediction Parameters ################################################
-        # Models in /TrainedModels on which to perform predictions.
+        ################################################################
+        # Prediction Parameters ########################################
+
+        "PredictionMode":0, # 0, The initial conditions are generated. 
+                            # 1, The initial conditions are used from 
+                            # folders in InitFolderList
         "ModelNames":["TransformerAuRuZr_BNetProton", "RidgeRegressorAuRuZr_BB"],
+        # Models in /TrainedModels on which to perform predictions.
+
         "PredictionOn":["B", "B"],
-        "RunOnCluster":False,
+
+        # If mode 0
         "InitialConditions":"3DMCGlauber",
         "OutputFolder":"AuAu19",
         "Nev":10,
 
+        # If mode 1        
+        "InitFolder":"AuAu19_x",
+        "PredictOutputPath":"OUTPUT/",
+        "InitReadType":"3DMCGlauber",
 
+        ################################################################
+        ################################################################
         # Training Data Parameters #####################################
+
+        "ModelTypes":["RidgeRegressor", "Transformer"],
         "DataPath":"TrainingData/AuRuZr",
-        "SetName":"BJ2_PQS_0p2",
+
+        # if read with .h5 files 
         "pTCuttOff":[0.2, 3],
         "centralities":[0., 10., 20., 40., 60, 80.],
+        # Check centralities consistency between parameters and init conditions
+
+        # Features parameters
         "FeaturesType":3, # Feature type corresponds to the type of features for the classification
                           # 0, no features, no classification of training data
                           # 1, the training data is split in nucleus
@@ -31,14 +50,22 @@ parameters = {
         # Should have the same size as the number of folder in DataPath.
         # The order is not important.
         "DataInformation":[["Au", 19.6], ["Au", 200]],
-        # Check centralities consistency between parameters and init conditions
+
+        # Smoothing data for training
         "GaussianSmoothingSigma":3,
 
+        "InputCharge":"B",
+        "InputCharge":"B",
+        # Possible input charge: "B" and "Q"
+        # Possible output charge: "B", "Q", "NetProton", "NetNeutron", "Protons", "Neutrons"
         
+
+        #################################################################
         # Ridge Regressor
         "PolyDegree":2,
         "RidgeAlpha":0.2,
 
+        ##################################################################
         #TransformerParameters
         "nhead":1,
         "num_layers":6,

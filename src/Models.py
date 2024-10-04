@@ -42,8 +42,12 @@ class Model:
     def predict(self, Y):
         self.predictions = self.model.predict(Y)
     
-    def save_predictions(self, OutputFolder, charge, modelName):
-        fnameOut = modelName+"_"+charge
+    def save_predictions(self, OutputFolder, charge, modelName, InputFolderName=""):
+        if InputFolderName == "":
+            prefix = ""
+        else:
+            prefix = InputFolderName+"_"
+        fnameOut = prefix+modelName+"_"+charge
         fi = open(OutputFolder+"/"+fnameOut, 'wb')
         pickle.dump(self.predictions, fi)
         fi.close()

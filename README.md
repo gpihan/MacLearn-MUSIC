@@ -13,8 +13,6 @@ Libraries needed:
 v1.0: Training and predictions are possible
 
 Remaining tasks:
-- Write MacLearnMUSIC.py (main)
-- Write Analysis.py
-- Allow for predictions on existing data
+- Write Analysis Runing mode
 - Write Display properly
 - Check for libraries + compile submodules

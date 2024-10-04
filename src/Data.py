@@ -19,7 +19,6 @@ from sklearn.model_selection import train_test_split
 class Data:
     def __init__(self, Param):
         self.DataPath = Param["DataPath"]
-        self.setName = Param["SetName"]
         self.DataInformation = Param["DataInformation"]
         self.GaussianSmoothingSigma = Param["GaussianSmoothingSigma"]
         self.FeatureType = Param["FeaturesType"]

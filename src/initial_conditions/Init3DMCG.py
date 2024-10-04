@@ -25,6 +25,17 @@ class Init3DMCG():
         os.system("ln -s "+os.path.abspath(self.path+"/tables") + " " +os.path.abspath(self.Folder_path)+"/tables")
         return self.Folder_path, self.Fname_out
     
+    def read(self, path="", N=72):
+        if path == "":
+            PATH = ""
+        else:
+            PATH = path.rstrip("/")+"/"
+        edArr = np.fromfile(PATH+"ed_etas_distribution_N_72.dat", dtype="float32").reshape(-1, N)
+        nBArr = np.fromfile(PATH+"nB_etas_distribution_N_72.dat", dtype="float32").reshape(-1, N)
+        nQArr = np.fromfile(PATH+"nQ_etas_distribution_N_72.dat", dtype="float32").reshape(-1, N)
+        return nBArr[0], edArr[1:], nBArr[1:], nQArr[1:]
+
+
     def generate(self):
         """ This function generates nev initial stage
             events using 3DMCGlauber set on paraDict parameters
@@ -35,19 +46,6 @@ class Init3DMCG():
         for ikey in self.Parameters.keys():
             command += " {}={}".format(ikey, self.Parameters[ikey])
         subprocess.run(command, shell = True, executable="/bin/bash")
-
-        edArr = np.fromfile("ed_etas_distribution_N_72.dat", dtype="float32")
-        nBArr = np.fromfile("nB_etas_distribution_N_72.dat", dtype="float32")
-        nQArr = np.fromfile("nQ_etas_distribution_N_72.dat", dtype="float32")
-
-
-        edArr = edArr.reshape(-1, 72)
-        nBArr = nBArr.reshape(-1, 72)
-        nQArr = nQArr.reshape(-1, 72)
-
-        eta = nBArr[0]
-        edArr = edArr[1:]
-        nBArr = nBArr[1:]
-        nQArr = nQArr[1:]
+        eta, edArr, nBArr, nQArr = self.read()
         os.chdir(h)
         return eta, edArr, nBArr, nQArr

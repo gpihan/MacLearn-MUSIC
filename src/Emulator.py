@@ -42,5 +42,11 @@ class Emulator:
             InitialConditions.AddFeatures(i)
             InitialConditions.get(charge)
             Model["model"].predict(InitialConditions.ForCurrentCharge)
-            Model["model"].save_predictions(InitialConditions.InitialCondition.Folder_path, charge, modelname)
+            if InitialConditions.PredictionMode == 0:
+                Outpath = InitialConditions.InitialCondition.Folder_path
+                InputF = ""
+            elif InitialConditions.PredictionMode == 1:
+                Outpath = InitialConditions.PredictOutputPath
+                InputF = InitialConditions.InitFolderPath
+            Model["model"].save_predictions(Outpath, charge, modelname, InputFolderName=InputF)
             InitialConditions.CleanFeatures()
