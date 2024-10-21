@@ -117,7 +117,7 @@ class InitialConditions():
         for key in ["ed", "nb", "nq"]:
             self.InitArrayDict[key] = self.InitArrayDict[key][:,:self.OrigLen]
 
-    def read(self, path=""):
+    def readInit(self, path=""):
         if self.InitReadType == "3DMCGlauber":
             N = 72
             if path == "":
@@ -148,7 +148,8 @@ class InitialConditions():
         self.OrigLen = len(self.InitArrayDict["nb"][0,:])
 
     def read(self):
-        self.InitArrayDict = {name:stuff for name, stuff in zip(names, tuple(self.read(path=self.InitFolder)))}            
+        names = ["eta", "ed", "nb", "nq"]
+        self.InitArrayDict = {name:stuff for name, stuff in zip(names, tuple(self.readInit(path=self.InitFolder)))}            
         self.OrigLen = len(self.InitArrayDict["nb"][0,:])
 
     def get(self, charge):

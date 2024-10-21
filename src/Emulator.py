@@ -46,7 +46,7 @@ class Emulator:
                 Outpath = InitialConditions.InitialCondition.Folder_path
                 InputF = ""
             elif InitialConditions.PredictionMode == 1:
-                Outpath = InitialConditions.PredictOutputPath
+                Outpath = "OUTPUT/"+InitialConditions.PredictOutputPath
                 InputF = InitialConditions.InitFolderPath
             Model["model"].save_predictions(Outpath, charge, modelname, InputFolderName=InputF)
             InitialConditions.CleanFeatures()
