@@ -24,3 +24,25 @@ def create_folder(folder_path):
         random_char = random.choice(string.ascii_letters)
         folder_path_ = folder_path+"_"+str(random_char)
         return create_folder(folder_path_)
+
+def checkLibraries() -> None:
+    try:
+        import sklearn
+        print("scikit-learn is installed.")
+    except ImportError:
+        print("scikit-learn is not installed.")
+    try:
+        import h5py
+        print("h5py is installed.")
+    except ImportError:
+        print("h5py is not installed.")
+    try:
+        import torch
+        print("PyTorch is installed.")
+    except ImportError:
+        print("PyTorch is not installed.")
+    try:
+        import xgboost
+        print("XGBoost is installed.")
+    except ImportError:
+        print("XGBoost is not installed.")

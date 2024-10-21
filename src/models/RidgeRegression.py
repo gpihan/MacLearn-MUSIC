@@ -26,10 +26,12 @@ class RidgeRegressor():
             Nfeatures = TrainingData.NumberOfFeatures
             Xtest, Ytest = tuple(TrainingData.SplitTrainedData[chargeIn][chargeOut]["Test"])
             Ypred = self.pipeline.predict(Xtest)
-            N =42
+            N = 24
             plt.plot(np.linspace(-1,1, len(Ypred[N][:-Nfeatures])), Ypred[N][:-Nfeatures], label="prediction")
             plt.plot(np.linspace(-1,1, len(Ytest[N][:-Nfeatures])), Ytest[N][:-Nfeatures], label="Truth")
             plt.plot(np.linspace(-1,1, len(Xtest[N][:-Nfeatures])), Xtest[N][:-Nfeatures], label="Initial")
+            plt.xlabel("y")
+            plt.ylabel("$d\\mathrm{N}_B/dy$")
             plt.legend()
             plt.show()
         else:

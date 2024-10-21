@@ -33,7 +33,12 @@ parameters = {
         # Training Data Parameters #####################################
 
         "ModelTypes":["RidgeRegressor", "Transformer"],
-        "DataPath":"TrainingData/AuRuZr",
+        "DataPath":"TrainingData/AuAu",
+        "TrainingFnames":["DICT_Au_19.dat", "DICT_Au_200.dat"],
+
+        # Contain nucleus name and energy to help for classification in training.
+        # Must corresponds to the content of the files in TrainingFnames 
+        "DataInformation":[["Au", 19.6], ["Au", 200]],
 
         # if read with .h5 files 
         "pTCuttOff":[0.2, 3],
@@ -46,16 +51,12 @@ parameters = {
                           # 1, the training data is split in nucleus
                           # 2, the training data is split in energy
                           # 3, the training data is split in nucleus and energy
-        # Contain nucleus name and energy to help for classification in training.
-        # Should have the same size as the number of folder in DataPath.
-        # The order is not important.
-        "DataInformation":[["Au", 19.6], ["Au", 200]],
 
         # Smoothing data for training
         "GaussianSmoothingSigma":3,
 
         "InputCharge":"B",
-        "InputCharge":"B",
+        "OutputCharge":"B",
         # Possible input charge: "B" and "Q"
         # Possible output charge: "B", "Q", "NetProton", "NetNeutron", "Protons", "Neutrons"
         

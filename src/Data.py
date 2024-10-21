@@ -26,6 +26,7 @@ class Data:
         self.pT_max = str(Param["pTCuttOff"][1])
         self.pTstring = "_dNdy_pT_"+self.pT_min+"_"+self.pT_max+".dat"
         self.centralities = Param["centralities"]
+        self.TrainingFnames = Param["TrainingFnames"]
         self.dataSET = []
         self.possibleNuclei = Param["PossibleNuclei"]
         self.NucEncoder = {a:i for i,a in enumerate(self.possibleNuclei)} 
@@ -213,20 +214,29 @@ class Data:
                 return PossibleNucleus
         
     def load_data(self):
-        # This method reads all the data in each data path
+        # This method reads all the data in files given in "TrainingFnames" in path "DataPath" 
         # if data is .h5, convert in dictionnary and pickle object first (requires names to contain nucleus)
         # if data is .dat, assumes its pickle object with 
         # the data.
-        h, _, files = next(os.walk(self.DataPath))
+        h = os.getcwd()
+        if h in self.DataPath:
+            DataPath = self.DataPath
+        else:
+            DataPath = h+"/"+self.DataPath
+        files = [fname for fname in self.TrainingFnames]
         self.lenDataPath = len(files)
         for fi in files:
-            fpath = h+"/"+fi
+            fpath = DataPath+"/"+fi
             if os.path.splitext(fi) == ".h5":
+                # For h5 files the nucleus name should be in the file name.
                 Nucleus = self.checkNuc(fi)
                 self.dataSET.append(self.loadH5(fpath, Nucleus, fi))
             else:
                 try:
                     with open(fpath, "rb") as pf:
+                        # self.dataSET has the exact same order as self.TrainingFnames
+                        # which has the same order as self.DataInformation
+                        # For one training data set corresponds one info on nucleus and energy.
                         self.dataSET.append(pickle.load(pf))
                 except FileNotFoundError:
                     print("Training dictionary not found.")
@@ -290,6 +300,7 @@ class Data:
                                 
                                 
                                 # Add features for training data classification.
+                                # Outlist[0] corresponds to the input data for training.
                                 Outlist[0] = self.AddFeatures(Outlist[0], DataInfo)
                                 #print("yolo", [len(a) for a in Outlist])
                                 
