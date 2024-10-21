@@ -1,3 +1,6 @@
+import numpy as np
+import sys
+sys.path.append('path_to_src_directory')
 from src.utils import *
 from src.Parameters import Parameters
 from src.MacLearnProcessor import MacLearnProcessor
@@ -7,12 +10,10 @@ from src.models.RidgeRegression import RidgeRegressor
 from src.Data import Data
 from src.Models import Model
 from src.InitialConditions import InitialConditions
-import numpy as np
-import sys
 
 if __name__ == "__main__":
     
-    checkLibraries()
+    #checkLibraries()
     Display = Display()
 
     # Read parameters from parameter file

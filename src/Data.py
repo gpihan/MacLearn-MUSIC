@@ -43,7 +43,6 @@ class Data:
         L = [a for a in A]
         for b in B:
             L.append(b)
-        print(L)
         #return [list(set(arr[:,i])) for i in range(len(arr[:,0]))]
         return L
 
@@ -262,24 +261,24 @@ class Data:
             self.FeatureType = 0
         if self.lenDataPath != len(self.DataInformation):
             self.FeatureType = 0
-        match self.FeatureType:
-            case 0:
-                self.NumberOfFeatures = 0
-                return Arr
-            case 1:
-                self.NumberOfFeatures = 1
-                extra_column = self.NucEncoder[Info[0]]
-                return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
-            case 2:
-                self.NumberOfFeatures = 1
-                extra_column = Info[1]
-                return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
-            case 3:
-                self.NumberOfFeatures = 2
-                extra_column1 = self.NucEncoder[Info[0]]
-                extra_column2 = Info[1]
-                ArrTemp = hstack((Arr, full((Arr.shape[0], 1), extra_column1)))
-                return hstack((ArrTemp, full((ArrTemp.shape[0], 1), extra_column2)))
+
+        if self.FeatureType == 0:
+            self.NumberOfFeatures = 0
+            return Arr
+        elif self.FeatureType == 1:
+            self.NumberOfFeatures = 1
+            extra_column = self.NucEncoder[Info[0]]
+            return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
+        elif self.FeatureType == 2:
+            self.NumberOfFeatures = 1
+            extra_column = Info[1]
+            return hstack((Arr, full((Arr.shape[0], 1), extra_column)))
+        elif self.FeatureType == 3:
+            self.NumberOfFeatures = 2
+            extra_column1 = self.NucEncoder[Info[0]]
+            extra_column2 = Info[1]
+            ArrTemp = hstack((Arr, full((Arr.shape[0], 1), extra_column1)))
+            return hstack((ArrTemp, full((ArrTemp.shape[0], 1), extra_column2)))
 
     def PrepareTrainingData(self):
         # Initialize dictionary to store data for charges 'B' and 'Q'
@@ -302,7 +301,6 @@ class Data:
                                 # Add features for training data classification.
                                 # Outlist[0] corresponds to the input data for training.
                                 Outlist[0] = self.AddFeatures(Outlist[0], DataInfo)
-                                #print("yolo", [len(a) for a in Outlist])
                                 
                                 
                                 # Append data based on charge
