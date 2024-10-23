@@ -250,7 +250,8 @@ class Data:
         Yfin_n = Dct[Nuc][cent]['n']["FINAL"]
         return [Yin, Yfin, Yfin_netp, Yfin_netn, Yfin_p, Yfin_n]
 
-    def loadEtas(self, Dct):
+    def loadEtas(self):
+        Dct = self.dataSET[0]
         Xin = Dct[list(Dct.keys())[0]]["INITIAL_eta"] 
         Xfin = Dct[list(Dct.keys())[0]]["FINAL_eta"] 
         return Xin, Xfin
@@ -335,6 +336,7 @@ class Data:
                 Ytrain, Ytest = self.apply_smoothing(Ytrain, Ytest)
                 self.SplitTrainedData[charge][OutType]["Train"] = [Xtrain, Ytrain]
                 self.SplitTrainedData[charge][OutType]["Test"] = [Xtest, Ytest]
+                print(len(Xtest)/len(Xtrain))
         self.IsProperlyShaped = True
 
     def apply_smoothing(self, Ytrain, Ytest):

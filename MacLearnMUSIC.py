@@ -3,13 +3,13 @@ import sys
 sys.path.append('path_to_src_directory')
 from src.utils import *
 from src.Parameters import Parameters
-from src.MacLearnProcessor import MacLearnProcessor
 from src.Display import Display
 from src.Emulator import Emulator
 from src.models.RidgeRegression import RidgeRegressor
 from src.Data import Data
 from src.Models import Model
 from src.InitialConditions import InitialConditions
+from src.Analyser import Analyser
 
 if __name__ == "__main__":
     
@@ -35,11 +35,18 @@ if __name__ == "__main__":
         InputCharge = Parameters.fromGeneralParameters["InputCharge"]
         OutputCharge = Parameters.fromGeneralParameters["OutputCharge"]
 
-        # Performe the training on data 
+        # Prepare Analysis 
+
+        Analysis = Analyser(Parameters.fromGeneralParameters)
+        Analysis.loadAnalysis(Analyser.__dict__)
+
+        
+        # Perform the training on data 
         for ModelType in Parameters.fromGeneralParameters["ModelTypes"]:
             model = Model(ModelType, Parameters.fromGeneralParameters)
             model.train(TrainingData, InputCharge, OutputCharge)
-            model.save()
+            Analysis.PerformAnalysis(model, TrainingData, Analyser.__dict__)
+            model.save(Analysis.TrainTestDict)
 
     elif Parameters.fromGeneralParameters["RunningMode"] == 1:
         ######### Prediction mode
@@ -66,8 +73,12 @@ if __name__ == "__main__":
         ModelEmulator.predict(InitialCondition)
     
     elif Parameters.fromGeneralParameters["RunningMode"] == 2:
-        print("To do")
-        sys.exit()
+        ModelEmulator = Emulator(Parameters.fromGeneralParameters)
+        ModelEmulator.loadModels()
+        ModelEmulator.ReadModelsFeatures()
+        print(ModelEmulator.Models[0]["MidRapidityDiff"])
+
+
     
     # Adapt the code for computation on the cluster 
     # parallelize each predictions as much as possible

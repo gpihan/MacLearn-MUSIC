@@ -3,36 +3,37 @@ parameters = {
         # General parameters ##########################################
         "RunningMode":0, # 0: Training mode
                         # 1: Predictions mode
-                        # 2: Analysis mode (on existing models)
+                        # 2: TESTS
+                        # 3: Analysis mode (on existing models)
 
         "PossibleNuclei":["Ru", "Zr", "Au"],
 
         ################################################################
         # Prediction Parameters ########################################
 
-        "PredictionMode":0, # 0, The initial conditions are generated. 
+        "PredictionMode":1, # 0, The initial conditions are generated. 
                             # 1, The initial conditions are used from 
-                            # folders in InitFolderList
-        "ModelNames":["TransformerAuRuZr_BNetProton", "RidgeRegressorAuRuZr_BB"],
+                            # InitFolder
+        "ModelNames":["RidgeRegressorAuAu_BB"],
         # Models in /TrainedModels on which to perform predictions.
 
-        "PredictionOn":["B", "B"],
+        "PredictionOn":["B", "Q"],
 
         # If mode 0
         "InitialConditions":"3DMCGlauber",
-        "OutputFolder":"AuAu19",
+        "OutputFolder":"TEST",
         "Nev":10,
 
         # If mode 1        
-        "InitFolder":"AuAu19_x",
-        "PredictOutputPath":"OUTPUT/",
+        "InitFolder":"TEST",
+        "PredictOutputPath":"TEST",
         "InitReadType":"3DMCGlauber",
 
         ################################################################
         ################################################################
         # Training Data Parameters #####################################
 
-        "ModelTypes":["RidgeRegressor", "Transformer"],
+        "ModelTypes":["RidgeRegressor"],
         "DataPath":"TrainingData/AuAu",
         "TrainingFnames":["DICT_Au_19.dat", "DICT_Au_200.dat"],
 
@@ -59,7 +60,19 @@ parameters = {
         "OutputCharge":"B",
         # Possible input charge: "B" and "Q"
         # Possible output charge: "B", "Q", "NetProton", "NetNeutron", "Protons", "Neutrons"
+
+        ################################################################
+        ################################################################
+        # Analysis parameters ##########################################
+        # During the training, the performance of the model can be evaluated.
+        # During the prediction, custom analysis can be performed.
+        "AnalysisMode":1, # 0, No analysis performed
+                          # 1, perform training/prediction analysis 
         
+        # The AnalysisOn corresponds to the analysis one wants to perform
+        "AnalysisOnTrain":["ComputeRMSDiff", "MidRapidityDiff"],
+        "AnalysisOnPred":["ComputeCumulants", "ComputeCorrelation"],
+        "DoPlots":False,
 
         #################################################################
         # Ridge Regressor

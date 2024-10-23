@@ -16,6 +16,7 @@ class Model:
         self.parameters = Param
         self.model_type = model_type
         self.predictions = []
+        self.testPredictions = []
         if model_type == 'Transformer':
             self.model = Transformer(Param)
         elif model_type == 'RidgeRegressor':
@@ -39,8 +40,11 @@ class Model:
                          "PathToTrainingData":TrainingData.DataPath
                         }
     
-    def predict(self, Y):
-        self.predictions = self.model.predict(Y)
+    def predict(self, X):
+        self.predictions = self.model.predict(X)
+
+    def predictOntest(self, X):
+        return self.model.predict(X)
     
     def save_predictions(self, OutputFolder, charge, modelName, InputFolderName=""):
         if InputFolderName == "":
@@ -52,13 +56,14 @@ class Model:
         pickle.dump(self.predictions, fi)
         fi.close()
 
-    def save(self):
+    def save(self, TestDict):
         if self.trained_flag:
             # Transformer_Au_Bp for instance
             dirname = self.metadata["PathToTrainingData"].split("/")[-1]
             fname = self.model_type+dirname+"_"+self.metadata["ChargeIn"]+self.metadata["ChargeOut"]
+            print(TestDict.keys())
             Dct = {"model":self}
-            Dct = {**self.metadata, **Dct}
+            Dct = {**self.metadata, **Dct, **TestDict}
             fi = open("TrainedModels/"+fname, 'wb')
             pickle.dump(Dct, fi)
             fi.close()
