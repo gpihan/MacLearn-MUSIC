@@ -25,24 +25,39 @@ def create_folder(folder_path):
         folder_path_ = folder_path+"_"+str(random_char)
         return create_folder(folder_path_)
 
-def checkLibraries() -> None:
+def checkLibraries(Display) -> None:
+    if Display.verbose:
+        print()
+        print("Checking required libraries: ")
+        print()
     try:
         import sklearn
-        print("scikit-learn is installed.")
+        if Display.verbose:
+            print("scikit-learn is installed.")
     except ImportError:
-        print("scikit-learn is not installed.")
+        if Display.verbose:
+            print("scikit-learn is not installed. Please install scikit library.")
+        sys.exit()
     try:
         import h5py
-        print("h5py is installed.")
+        if Display.verbose:
+            print("h5py is installed.")
     except ImportError:
-        print("h5py is not installed.")
+        if Display.verbose:
+            print("h5py is not installed. Can't load h5 files.")
     try:
         import torch
-        print("PyTorch is installed.")
+        if Display.verbose:
+            print("PyTorch is installed.")
     except ImportError:
-        print("PyTorch is not installed.")
+        if Display.verbose:
+            print("PyTorch is not installed. Cant't use Pytorch based models.")
     try:
         import xgboost
-        print("XGBoost is installed.")
+        if Display.verbose:
+            print("XGBoost is installed.")
     except ImportError:
-        print("XGBoost is not installed.")
+        if Display.verbose:
+            print("XGBoost is not installed.")
+        sys.exit()
+    print()

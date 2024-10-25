@@ -12,8 +12,3 @@ Libraries needed:
 - xgboost
 
 v1.0: Training and predictions are possible
-
-Remaining tasks:
-- Write Analysis Runing mode
-- Write Display properly
-- Check for libraries + compile submodules

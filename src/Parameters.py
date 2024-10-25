@@ -9,7 +9,7 @@ class Parameters:
         self.fromInitialConditions = {}
         self.ParamPath = ""
         self.InitPath = ""
-        self.display = Display()
+        self.display = Display({"verbose":True})
     
     def ReadUserInput(self):
         try:

@@ -8,6 +8,8 @@ parameters = {
 
         "PossibleNuclei":["Ru", "Zr", "Au"],
 
+        "verbose":True,
+
         ################################################################
         # Prediction Parameters ########################################
 
@@ -70,8 +72,8 @@ parameters = {
                           # 1, perform training/prediction analysis 
         
         # The AnalysisOn corresponds to the analysis one wants to perform
-        "AnalysisOnTrain":["ComputeRMSDiff", "MidRapidityDiff"],
-        "AnalysisOnPred":["ComputeCumulants", "ComputeCorrelation"],
+        "AnalysisOnTrain":"Full",
+        "AnalysisOnPred":"Full",
         "DoPlots":False,
 
         #################################################################

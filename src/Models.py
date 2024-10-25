@@ -61,11 +61,8 @@ class Model:
             # Transformer_Au_Bp for instance
             dirname = self.metadata["PathToTrainingData"].split("/")[-1]
             fname = self.model_type+dirname+"_"+self.metadata["ChargeIn"]+self.metadata["ChargeOut"]
-            print(TestDict.keys())
             Dct = {"model":self}
             Dct = {**self.metadata, **Dct, **TestDict}
             fi = open("TrainedModels/"+fname, 'wb')
             pickle.dump(Dct, fi)
             fi.close()
-
-            # Make sure that Emulator reads it the same way

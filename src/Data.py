@@ -289,6 +289,7 @@ class Data:
                                             'NetNeutron': [], 'Protons': [], 'Neutrons': []}
         }
         # Iterate through the dictionaries
+        self.CentralityInfoList = []
         for Data, DataInfo in zip(self.dataSET, self.DataInformation):
             for Nuc, cent_dict in Data.items():
                 for cent, charge_dict in cent_dict.items():
@@ -297,7 +298,6 @@ class Data:
                             if isinstance(data_dict, dict) and "INITIAL" in data_dict and "FINAL" in data_dict:
                                 # Load Xin, Yin, Xfin, Yfin using the load function
                                 Outlist = self.load(Data, Nuc, cent, charge)
-                                
                                 
                                 # Add features for training data classification.
                                 # Outlist[0] corresponds to the input data for training.
@@ -308,15 +308,24 @@ class Data:
                                 for charge in self.PreparedTrainingDataDict.keys():
                                     for outType, out in zip(self.PreparedTrainingDataDict[charge].keys(), Outlist):
                                         self.PreparedTrainingDataDict[charge][outType].append(out)
+                                # Get info of centrality for each data line
+                                for a in range(int(Outlist[0].shape[0])):
+                                    self.CentralityInfoList.append(cent)
+
         # Convert lists to numpy arrays for both charges
-        
         for charge in self.PreparedTrainingDataDict.keys():
             for key in self.PreparedTrainingDataDict[charge].keys():
                 self.PreparedTrainingDataDict[charge][key] = concatenate(self.PreparedTrainingDataDict[charge][key], axis=0)
 
     def SplitTrainingData(self, OutData, charge):
-            return list(train_test_split(self.PreparedTrainingDataDict[charge]["Init"], OutData, 
-                                         test_size=self.TestPercentage, random_state=42, shuffle=True))
+            RandomState = 42 
+            # Split the centralities in the same way as the data
+            Xtrain, Xtest, Ytrain, Ytest = train_test_split(self.PreparedTrainingDataDict[charge]["Init"], OutData, 
+                                                        test_size=self.TestPercentage, random_state=RandomState, shuffle=True)
+
+            CXtrain, CXtest, CYtrain, CYtest = train_test_split(self.CentralityInfoList, self.CentralityInfoList,     
+                                                            test_size=self.TestPercentage, random_state=RandomState, shuffle=True)
+            return Xtrain, Xtest, Ytrain, Ytest, CXtrain, CXtest 
 
     def PerformSplitGaussianSmoothing(self):
         self.SplitTrainedData = {'B': {'B': {"Train":[], "Test":[]}, 
@@ -328,15 +337,18 @@ class Data:
                                       'NetProton': {"Train":[], "Test":[]}, 
                                        'NetNeutron': {"Train":[], "Test":[]}, 
                                        'Protons': {"Train":[], "Test":[]}, 
-                                       'Neutrons': {"Train":[], "Test":[]}}
+                                       'Neutrons': {"Train":[], "Test":[]}},
+                                'Centralities':{"Train":[], "Test":[]}
                                 }
+
         for charge in self.PossibleCharges:
             for OutType in self.SplitTrainedData[charge].keys():
-                Xtrain, Xtest, Ytrain, Ytest = self.SplitTrainingData(self.PreparedTrainingDataDict[charge][OutType], charge)
+                Xtrain, Xtest, Ytrain, Ytest, Ctrain, Ctest = self.SplitTrainingData(self.PreparedTrainingDataDict[charge][OutType], charge)
                 Ytrain, Ytest = self.apply_smoothing(Ytrain, Ytest)
                 self.SplitTrainedData[charge][OutType]["Train"] = [Xtrain, Ytrain]
                 self.SplitTrainedData[charge][OutType]["Test"] = [Xtest, Ytest]
-                print(len(Xtest)/len(Xtrain))
+                self.SplitTrainedData["Centralities"]["Train"] = Ctrain 
+                self.SplitTrainedData["Centralities"]["Test"] = Ctest
         self.IsProperlyShaped = True
 
     def apply_smoothing(self, Ytrain, Ytest):
