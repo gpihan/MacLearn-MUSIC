@@ -1,3 +1,5 @@
+![Alt text](/image/MacLearn.png?raw=true "Optional Title")
+
 # MacLearn-MUSIC v1.0
 Machine leaning for QCD hydrodynamic simulations using MUSIC.
 
