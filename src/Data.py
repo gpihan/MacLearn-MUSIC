@@ -290,12 +290,14 @@ class Data:
         }
         # Iterate through the dictionaries
         self.CentralityInfoList = []
+        i=0
         for Data, DataInfo in zip(self.dataSET, self.DataInformation):
             for Nuc, cent_dict in Data.items():
                 for cent, charge_dict in cent_dict.items():
                     if isinstance(charge_dict, dict):
                         for charge, data_dict in charge_dict.items():
                             if isinstance(data_dict, dict) and "INITIAL" in data_dict and "FINAL" in data_dict:
+                                i+=1
                                 # Load Xin, Yin, Xfin, Yfin using the load function
                                 Outlist = self.load(Data, Nuc, cent, charge)
                                 
@@ -305,12 +307,12 @@ class Data:
                                 
                                 
                                 # Append data based on charge
-                                for charge in self.PreparedTrainingDataDict.keys():
-                                    for outType, out in zip(self.PreparedTrainingDataDict[charge].keys(), Outlist):
-                                        self.PreparedTrainingDataDict[charge][outType].append(out)
-                                # Get info of centrality for each data line
-                                for a in range(int(Outlist[0].shape[0])):
-                                    self.CentralityInfoList.append(cent)
+                                for outType, out in zip(self.PreparedTrainingDataDict[charge].keys(), Outlist):
+                                    self.PreparedTrainingDataDict[charge][outType].append(out)
+                                # Get info of centrality for each data line (avoid double count with if)
+                                if charge == "B":
+                                    for a in range(int(Outlist[0].shape[0])):
+                                        self.CentralityInfoList.append(cent)
 
         # Convert lists to numpy arrays for both charges
         for charge in self.PreparedTrainingDataDict.keys():

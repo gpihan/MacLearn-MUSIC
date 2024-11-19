@@ -56,7 +56,7 @@ parameters = {
                           # 3, the training data is split in nucleus and energy
 
         # Smoothing data for training
-        "GaussianSmoothingSigma":3,
+        "GaussianSmoothingSigma":2,
 
         "InputCharge":"B",
         "OutputCharge":"B",
