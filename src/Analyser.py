@@ -56,10 +56,15 @@ class Analyser():
             CentralityDict[centrality].append(i)
         return CentralityDict
 
-
     def global_charge(self, Ypred, Ytest):
         IntPred = self.ComputeIntegralArray(Ypred)
         IntTest = self.ComputeIntegralArray(Ytest)
+        return np.array(IntPred) - np.array(IntTest)
+
+    def mid_rapidity_charge(self, Ypred, Ytest):
+        etami, etaMi = np.abs(self.EtaOut + 0.5).argmin(), np.abs(self.EtaOut - 0.5).argmin()
+        IntPred = self.ComputeIntegralArray(Ypred[etami:etaMi])
+        IntTest = self.ComputeIntegralArray(Ytest[etami:etaMi])
         return np.array(IntPred) - np.array(IntTest)
 
     def mean_absolute_error(self, Ypred, Ytest):
@@ -105,11 +110,12 @@ class Analyser():
         IndexDict = self.GetCentralityIndices(CTest)
         return {centr:self.global_charge(Ypred[indexes], Ytest[indexes]) for centr, indexes in IndexDict.items()}
 
+    def ComputeMidCharge(self, Xtest, Ytest, Ypred, CTest):
+        IndexDict = self.GetCentralityIndices(CTest)
+        return {centr:self.mid_rapidity_charge(Ypred[indexes], Ytest[indexes]) for centr, indexes in IndexDict.items()}
+
     def GetRaw(self, Xtest, Ytest, Ypred, CTest):
         return {"Eta":self.EtaOut, "Xtest":Xtest, "Ytest":Ytest, "Ypred":Ypred, "Centralities":CTest}
-
-
-
 
 
     def Full(self, Xtest, Ytest, Ypred, CTest):
@@ -117,7 +123,9 @@ class Analyser():
                 "RMSE":self.ComputeRMSE(Xtest, Ytest, Ypred, CTest), 
                 "R2":self.ComputeR2(Xtest, Ytest, Ypred, CTest), 
                 "Corr":self.ComputeCorrelation(Xtest, Ytest, Ypred, CTest), 
-                "GC":self.ComputeGlobalCharge(Xtest, Ytest, Ypred, CTest)}
+                "GC":self.ComputeGlobalCharge(Xtest, Ytest, Ypred, CTest),
+                "MidRap":self.ComputeMidCharge(Xtest, Ytest, Ypred, CTest)
+                }
 
     def Raw(self, Xtest, Ytest, Ypred, CTest):
         return {"GetRaw":self.GetRaw(Xtest, Ytest, Ypred, CTest)}
