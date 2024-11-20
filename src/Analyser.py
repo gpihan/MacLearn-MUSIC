@@ -124,7 +124,8 @@ class Analyser():
                 "R2":self.ComputeR2(Xtest, Ytest, Ypred, CTest), 
                 "Corr":self.ComputeCorrelation(Xtest, Ytest, Ypred, CTest), 
                 "GC":self.ComputeGlobalCharge(Xtest, Ytest, Ypred, CTest),
-                "MidRap":self.ComputeMidCharge(Xtest, Ytest, Ypred, CTest)
+                "MidRap":self.ComputeMidCharge(Xtest, Ytest, Ypred, CTest),
+                "Raw":self.GetRaw(Xtest, Ytest, Ypred, CTest)
                 }
 
     def Raw(self, Xtest, Ytest, Ypred, CTest):
