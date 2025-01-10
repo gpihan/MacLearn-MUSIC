@@ -1,0 +1,22 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: MacLearn-MUSIC
+message: Machines can play!
+type: software
+authors:
+  - given-names: Gregoire
+    family-names: Pihan
+    email: gpihan@uh.edu
+    affiliation: University of Houston
+    orcid: 'https://orcid.org/0000-0002-7072-4480'
+repository-code: 'https://github.com/gpihan/MacLearn-MUSIC'
+abstract: >-
+  Machine learning for QCD hydrodynamic simulations using
+  MUSIC.
+keywords:
+  - Relativistic hydrodynamics
+  - QCD
+  - Machine Learning
+  - Emulator
